@@ -84,9 +84,6 @@ go test ./...
 ```bash
 # Usecase 및 Repository 에 대한 모의 코드 생성
 mockery --dir=domain --output=domain/mocks --outpkg=mocks --all
-
-# 데이터베이스에 대한 모의 코드 생성
-mockery --dir=psql --output=psql/mocks --outpkg=mocks --all
 ```
 
 Usecase, Repository 또는 데이터베이스의 인터페이스를 변경할 때마다 해당 명령을 실행하여 테스트용 모의 코드를 다시 생성해야 합니다.
