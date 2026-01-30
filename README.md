@@ -95,32 +95,30 @@ Usecase, Repository 또는 데이터베이스의 인터페이스를 변경할 �
 
 ```
 .
-├── Dockerfile
-├── api
-│   ├── controller
+├── api/
+│   ├── controller/
 │   │   ├── login_controller.go
-│   │   ├── profile_controller.go
 │   │   ├── profile_controller_test.go
+│   │   ├── profile_controller.go
 │   │   ├── refresh_token_controller.go
 │   │   ├── signup_controller.go
 │   │   └── task_controller.go
-│   ├── middleware
+│   ├── middleware/
 │   │   └── jwt_auth_middleware.go
-│   └── route
+│   └── route/
 │       ├── login_route.go
 │       ├── profile_route.go
 │       ├── refresh_token_route.go
-│       ├── route.go
 │       ├── signup_route.go
 │       └── task_route.go
-├── bootstrap
+├── bootstrap/
 │   ├── app.go
 │   ├── database.go
 │   └── env.go
-├── cmd
+├── cmd/
 │   └── main.go
-├── docker-compose.yaml
-├── domain
+├── domain/
+│   ├── domain.go
 │   ├── error_response.go
 │   ├── jwt_custom.go
 │   ├── login.go
@@ -129,25 +127,84 @@ Usecase, Repository 또는 데이터베이스의 인터페이스를 변경할 �
 │   ├── signup.go
 │   ├── success_response.go
 │   ├── task.go
-│   └── user.go
+│   ├── user.go
+│   └── mocks/
+│       ├── LoginUsecase.go
+│       ├── ProfileUsecase.go
+│       ├── RefreshTokenUsecase.go
+│       ├── SignupUsecase.go
+│       ├── TaskRepository.go
+│       ├── TaskUsecase.go
+│       └── UserRepository.go
+├── ent/
+│   ├── client.go
+│   ├── ent.go
+│   ├── generate.go
+│   ├── mutation.go
+│   ├── runtime.go
+│   ├── task_create.go
+│   ├── task_delete.go
+│   ├── task_query.go
+│   ├── task_update.go
+│   ├── task.go
+│   ├── tx.go
+│   ├── user_create.go
+│   ├── user_delete.go
+│   ├── user_query.go
+│   ├── user_update.go
+│   ├── user.go
+│   ├── enttest/
+│   │   └── enttest.go
+│   ├── hook/
+│   │   └── hook.go
+│   ├── migrate/
+│   │   ├── migrate.go
+│   │   └── schema.go
+│   ├── predicate/
+│   │   └── predicate.go
+│   ├── runtime/
+│   │   └── runtime.go
+│   ├── schema/
+│   │   ├── task.go
+│   │   └── user.go
+│   ├── task/
+│   │   ├── task.go
+│   │   └── where.go
+│   └── user/
+│       ├── user.go
+│       └── where.go
+├── internal/
+│   ├── fakeutil/
+│   │   └── fakeutil.go
+│   └── tokenutil/
+│       └── tokenutil.go
+├── repository/
+│   ├── task_repository.go
+│   ├── user_repository_test.go
+│   └── user_repository.go
+├── usecase/
+│   ├── login_usecase.go
+│   ├── profile_usecase.go
+│   ├── refresh_token_usecase.go
+│   ├── signup_usecase.go
+│   ├── task_usecase_test.go
+│   └── task_usecase.go
+├── assets/
+│   ├── button-view-api-docs.png
+│   ├── go-arch-private-api-request-flow.png
+│   ├── go-arch-public-api-request-flow.png
+│   ├── go-backend-arch-diagram.png
+│   └── go-backend-clean-architecture.png
+├── .env.example
+├── .gitignore
+├── docker-compose.yaml
+├── Dockerfile
 ├── go.mod
 ├── go.sum
-├── internal
-│   └── tokenutil
-│       └── tokenutil.go
-├── mongo
-│   └── mongo.go
-├── repository
-│   ├── task_repository.go
-│   ├── user_repository.go
-│   └── user_repository_test.go
-└── usecase
-    ├── login_usecase.go
-    ├── profile_usecase.go
-    ├── refresh_token_usecase.go
-    ├── signup_usecase.go
-    ├── task_usecase.go
-    └── task_usecase_test.go
+├── help.ps1
+├── LICENSE
+├── Makefile
+└── README.md
 ```
 
 ### API 요청 및 응답 예시
