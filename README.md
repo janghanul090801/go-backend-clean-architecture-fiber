@@ -60,14 +60,14 @@ cd go-backend-clean-architecture-fiber
 - `go`가 설치되어 있지 않으면 설치
 - `PostgreSQL`이 설치되어 있지 않으면 설치
 - `.env` 파일에서 `DB_HOST`를 `localhost`로 변경(`DB_HOST=localhost`)
-- `go run cmd/main.go`를 실행
+- `go run cmd/main.go` 또는 `make run`를 실행
 - `http://localhost:8080`로 접속
 
 #### Docker로 실행
 
 - 루트 디렉터리에 `.env.example`를 복사해 `.env` 파일을 만들고 값을 입력
 - Docker 및 Docker Compose를 설치
-- `docker-compose up -d`를 실행
+- `docker-compose up -d` 또는 `make compose-up`를 실행
 - `http://localhost:8080`로 접속
 
 ### 테스트 실행
