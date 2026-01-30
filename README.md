@@ -35,7 +35,7 @@ Fiber, PostgreSQL, Ent ORM, JWT 인증 미들웨어, 테스트 및 Docker를 사
 
 > 액세스 토큰 유효성 검사를 위한 JWT 인증 미들웨어.
 
-![비공개 API 요청 흐름](https://github.com/amitshekhariitbhu/go-backend-clean-architecture/blob/main/assets/go-backend-arch-diagram.png?raw=true)
+![비공개 API 요청 흐름](https://github.com/amitshekhariitbhu/go-backend-clean-architecture/blob/main/assets/go-arch-private-api-request-flow.png?raw=true)
 
 ### 실행 방법
 
