@@ -50,3 +50,11 @@ compose-up: ## Up docker-compose
 mock: ## Run Mockery
 	@echo Mocking interface...
 	mockery --dir=domain --output=domain/mocks --outpkg=mocks --all
+
+ent-new: ## Create new ent schema (make ent-new name=User)
+	@echo Creating new ent schema
+	go run -mod=mod entgo.io/ent/cmd/ent new $(name)
+
+ent-generate: ## Generate ent
+	@echo Genarating...
+	go generate ./ent
