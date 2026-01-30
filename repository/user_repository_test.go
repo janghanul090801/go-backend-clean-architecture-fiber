@@ -2,64 +2,30 @@ package repository_test
 
 import (
 	"context"
-	"errors"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/enttest"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/repository"
+	"github.com/stretchr/testify/assert"
 	"testing"
 
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/mongo/mocks"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/repository"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func TestCreate(t *testing.T) {
+	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&_fk=1")
+	defer client.Close()
 
-	var databaseHelper *mocks.Database
-	var collectionHelper *mocks.Collection
+	repo := repository.NewUserRepository(client)
 
-	databaseHelper = &mocks.Database{}
-	collectionHelper = &mocks.Collection{}
-
-	collectionName := domain.CollectionUser
-
-	mockUser := &domain.User{
-		ID:       primitive.NewObjectID(),
-		Name:     "Test",
-		Email:    "test@gmail.com",
-		Password: "password",
-	}
-
-	mockEmptyUser := &domain.User{}
-	mockUserID := primitive.NewObjectID()
-
-	t.Run("success", func(t *testing.T) {
-
-		collectionHelper.On("InsertOne", mock.Anything, mock.AnythingOfType("*domain.User")).Return(mockUserID, nil).Once()
-
-		databaseHelper.On("Collection", collectionName).Return(collectionHelper)
-
-		ur := repository.NewUserRepository(databaseHelper, collectionName)
-
-		err := ur.Create(context.Background(), mockUser)
-
-		assert.NoError(t, err)
-
-		collectionHelper.AssertExpectations(t)
+	err := repo.Create(context.Background(), &domain.User{
+		Name:     "hanul",
+		Email:    "hanul@gmail.com",
+		Password: "123456",
 	})
 
-	t.Run("error", func(t *testing.T) {
-		collectionHelper.On("InsertOne", mock.Anything, mock.AnythingOfType("*domain.User")).Return(mockEmptyUser, errors.New("Unexpected")).Once()
+	assert.NoError(t, err)
 
-		databaseHelper.On("Collection", collectionName).Return(collectionHelper)
-
-		ur := repository.NewUserRepository(databaseHelper, collectionName)
-
-		err := ur.Create(context.Background(), mockEmptyUser)
-
-		assert.Error(t, err)
-
-		collectionHelper.AssertExpectations(t)
-	})
-
+	u, err := client.User.Query().Only(context.Background())
+	assert.NoError(t, err)
+	assert.Equal(t, "hanul", u.Name)
 }

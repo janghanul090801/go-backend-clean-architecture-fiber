@@ -1,33 +1,38 @@
 package controller
 
 import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/bootstrap"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"net/http"
 
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/bootstrap"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type SignupController struct {
-	SignupUsecase domain.SignupUsecase
-	Env           *bootstrap.Env
+	signupUsecase domain.SignupUsecase
+	env           *bootstrap.Env
 }
 
-func (sc *SignupController) Signup(c *gin.Context) {
+func NewSignupController(usecase domain.SignupUsecase, env *bootstrap.Env) *SignupController {
+	return &SignupController{
+		signupUsecase: usecase,
+		env:           env,
+	}
+}
+
+func (sc *SignupController) Signup(c *fiber.Ctx) error {
+	ctx := c.Context()
 	var request domain.SignupRequest
 
-	err := c.ShouldBind(&request)
+	err := c.BodyParser(&request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusBadRequest).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	_, err = sc.SignupUsecase.GetUserByEmail(c, request.Email)
+	_, err = sc.signupUsecase.GetUserByEmail(ctx, request.Email)
 	if err == nil {
-		c.JSON(http.StatusConflict, domain.ErrorResponse{Message: "User already exists with the given email"})
-		return
+		return c.Status(http.StatusConflict).JSON(domain.ErrorResponse{Message: "User already exists with the given email"})
 	}
 
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
@@ -35,35 +40,30 @@ func (sc *SignupController) Signup(c *gin.Context) {
 		bcrypt.DefaultCost,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
 	request.Password = string(encryptedPassword)
 
 	user := domain.User{
-		ID:       primitive.NewObjectID(),
 		Name:     request.Name,
 		Email:    request.Email,
 		Password: request.Password,
 	}
 
-	err = sc.SignupUsecase.Create(c, &user)
+	err = sc.signupUsecase.Create(ctx, &user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	accessToken, err := sc.SignupUsecase.CreateAccessToken(&user, sc.Env.AccessTokenSecret, sc.Env.AccessTokenExpiryHour)
+	accessToken, err := sc.signupUsecase.CreateAccessToken(&user, sc.env.AccessTokenSecret, sc.env.AccessTokenExpiryHour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	refreshToken, err := sc.SignupUsecase.CreateRefreshToken(&user, sc.Env.RefreshTokenSecret, sc.Env.RefreshTokenExpiryHour)
+	refreshToken, err := sc.signupUsecase.CreateRefreshToken(&user, sc.env.RefreshTokenSecret, sc.env.RefreshTokenExpiryHour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
 	signupResponse := domain.SignupResponse{
@@ -71,5 +71,5 @@ func (sc *SignupController) Signup(c *gin.Context) {
 		RefreshToken: refreshToken,
 	}
 
-	c.JSON(http.StatusOK, signupResponse)
+	return c.Status(http.StatusOK).JSON(signupResponse)
 }

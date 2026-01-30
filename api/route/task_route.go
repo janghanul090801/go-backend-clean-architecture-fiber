@@ -1,22 +1,16 @@
 package route
 
 import (
-	"time"
-
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/api/controller"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/bootstrap"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/mongo"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/repository"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/usecase"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/controller"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/middleware"
 )
 
-func NewTaskRouter(env *bootstrap.Env, timeout time.Duration, db mongo.Database, group *gin.RouterGroup) {
-	tr := repository.NewTaskRepository(db, domain.CollectionTask)
-	tc := &controller.TaskController{
-		TaskUsecase: usecase.NewTaskUsecase(tr, timeout),
-	}
-	group.GET("/task", tc.Fetch)
-	group.POST("/task", tc.Create)
+func NewTaskRouter(group fiber.Router, controller *controller.TaskController) {
+
+	// protected
+	protected := group.Group("protected")
+	protected.Use(middleware.JwtMiddleware)
+	protected.Get("/", controller.Fetch)
+	protected.Post("/", controller.Create)
 }

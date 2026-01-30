@@ -2,10 +2,9 @@ package usecase
 
 import (
 	"context"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/tokenutil"
 	"time"
-
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/internal/tokenutil"
 )
 
 type loginUsecase struct {
@@ -20,7 +19,7 @@ func NewLoginUsecase(userRepository domain.UserRepository, timeout time.Duration
 	}
 }
 
-func (lu *loginUsecase) GetUserByEmail(c context.Context, email string) (domain.User, error) {
+func (lu *loginUsecase) GetUserByEmail(c context.Context, email string) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(c, lu.contextTimeout)
 	defer cancel()
 	return lu.userRepository.GetByEmail(ctx, email)

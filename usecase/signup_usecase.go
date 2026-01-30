@@ -2,10 +2,9 @@ package usecase
 
 import (
 	"context"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/tokenutil"
 	"time"
-
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/internal/tokenutil"
 )
 
 type signupUsecase struct {
@@ -26,7 +25,7 @@ func (su *signupUsecase) Create(c context.Context, user *domain.User) error {
 	return su.userRepository.Create(ctx, user)
 }
 
-func (su *signupUsecase) GetUserByEmail(c context.Context, email string) (domain.User, error) {
+func (su *signupUsecase) GetUserByEmail(c context.Context, email string) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(c, su.contextTimeout)
 	defer cancel()
 	return su.userRepository.GetByEmail(ctx, email)

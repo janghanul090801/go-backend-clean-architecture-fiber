@@ -2,71 +2,61 @@ package repository
 
 import (
 	"context"
-
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/mongo"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
 )
 
 type userRepository struct {
-	database   mongo.Database
-	collection string
+	client *ent.Client
 }
 
-func NewUserRepository(db mongo.Database, collection string) domain.UserRepository {
+func NewUserRepository(client *ent.Client) domain.UserRepository {
 	return &userRepository{
-		database:   db,
-		collection: collection,
+		client: client,
 	}
 }
 
-func (ur *userRepository) Create(c context.Context, user *domain.User) error {
-	collection := ur.database.Collection(ur.collection)
-
-	_, err := collection.InsertOne(c, user)
+func (r *userRepository) Create(c context.Context, user *domain.User) error {
+	_, err := r.client.User.Create().
+		SetName(user.Name).
+		SetEmail(user.Email).
+		SetPassword(user.Password).
+		Save(c)
 
 	return err
 }
 
-func (ur *userRepository) Fetch(c context.Context) ([]domain.User, error) {
-	collection := ur.database.Collection(ur.collection)
-
-	opts := options.Find().SetProjection(bson.D{{Key: "password", Value: 0}})
-	cursor, err := collection.Find(c, bson.D{}, opts)
-
+func (r *userRepository) Fetch(c context.Context) ([]*domain.User, error) {
+	u, err := r.client.User.Query().All(c)
 	if err != nil {
 		return nil, err
 	}
 
-	var users []domain.User
-
-	err = cursor.All(c, &users)
-	if users == nil {
-		return []domain.User{}, err
+	users := make([]*domain.User, len(u))
+	for i, v := range u {
+		users[i] = domain.NewUserFromEnt(v)
 	}
 
 	return users, err
 }
 
-func (ur *userRepository) GetByEmail(c context.Context, email string) (domain.User, error) {
-	collection := ur.database.Collection(ur.collection)
-	var user domain.User
-	err := collection.FindOne(c, bson.M{"email": email}).Decode(&user)
-	return user, err
-}
-
-func (ur *userRepository) GetByID(c context.Context, id string) (domain.User, error) {
-	collection := ur.database.Collection(ur.collection)
-
-	var user domain.User
-
-	idHex, err := primitive.ObjectIDFromHex(id)
+func (r *userRepository) GetByEmail(c context.Context, email string) (*domain.User, error) {
+	u, err := r.client.User.Query().Where(
+		user.EmailEQ(email),
+	).Only(c)
 	if err != nil {
-		return user, err
+		return nil, err
 	}
 
-	err = collection.FindOne(c, bson.M{"_id": idHex}).Decode(&user)
-	return user, err
+	return domain.NewUserFromEnt(u), err
+}
+
+func (r *userRepository) GetByID(c context.Context, id *domain.ID) (*domain.User, error) {
+	u, err := r.client.User.Get(c, *id)
+	if err != nil {
+		return nil, err
+	}
+
+	return domain.NewUserFromEnt(u), err
 }

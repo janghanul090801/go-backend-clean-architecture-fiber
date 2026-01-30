@@ -2,51 +2,57 @@ package repository
 
 import (
 	"context"
-
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/mongo"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/task"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
 )
 
 type taskRepository struct {
-	database   mongo.Database
-	collection string
+	client *ent.Client
 }
 
-func NewTaskRepository(db mongo.Database, collection string) domain.TaskRepository {
+func NewTaskRepository(client *ent.Client) domain.TaskRepository {
 	return &taskRepository{
-		database:   db,
-		collection: collection,
+		client: client,
 	}
 }
 
-func (tr *taskRepository) Create(c context.Context, task *domain.Task) error {
-	collection := tr.database.Collection(tr.collection)
+func (r *taskRepository) Create(c context.Context, task *domain.Task) error {
 
-	_, err := collection.InsertOne(c, task)
+	_, err := r.client.Task.Create().
+		SetTitle(task.Title).
+		SetOwnerID(task.UserID).
+		Save(c)
 
 	return err
 }
 
-func (tr *taskRepository) FetchByUserID(c context.Context, userID string) ([]domain.Task, error) {
-	collection := tr.database.Collection(tr.collection)
+func (r *taskRepository) FetchByUserID(c context.Context, userID *domain.ID) ([]*domain.Task, error) {
+	t, err := r.client.Task.
+		Query().
+		Where(
+			task.HasOwnerWith(
+				user.IDEQ(
+					*userID,
+				),
+			),
+		).
+		WithOwner().
+		Order(
+			ent.Desc(
+				task.FieldCreatedAt,
+			),
+		).
+		All(c)
 
-	var tasks []domain.Task
-
-	idHex, err := primitive.ObjectIDFromHex(userID)
-	if err != nil {
-		return tasks, err
-	}
-
-	cursor, err := collection.Find(c, bson.M{"userID": idHex})
 	if err != nil {
 		return nil, err
 	}
 
-	err = cursor.All(c, &tasks)
-	if tasks == nil {
-		return []domain.Task{}, err
+	tasks := make([]*domain.Task, len(t))
+	for i, te := range t {
+		tasks[i] = domain.NewTaskFromEnt(te)
 	}
 
 	return tasks, err

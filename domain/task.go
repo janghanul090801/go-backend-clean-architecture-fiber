@@ -2,26 +2,32 @@ package domain
 
 import (
 	"context"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
-
-const (
-	CollectionTask = "tasks"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
+	"time"
 )
 
 type Task struct {
-	ID     primitive.ObjectID `bson:"_id" json:"-"`
-	Title  string             `bson:"title" form:"title" binding:"required" json:"title"`
-	UserID primitive.ObjectID `bson:"userID" json:"-"`
+	ID        ID        `json:"id"`
+	Title     string    `form:"title" binding:"required" json:"title"`
+	UserID    ID        `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+func NewTaskFromEnt(entity *ent.Task) *Task {
+	return &Task{
+		ID:        entity.ID,
+		Title:     entity.Title,
+		UserID:    entity.Edges.Owner.ID,
+		CreatedAt: entity.CreatedAt,
+	}
 }
 
 type TaskRepository interface {
 	Create(c context.Context, task *Task) error
-	FetchByUserID(c context.Context, userID string) ([]Task, error)
+	FetchByUserID(c context.Context, userID *ID) ([]*Task, error)
 }
 
 type TaskUsecase interface {
 	Create(c context.Context, task *Task) error
-	FetchByUserID(c context.Context, userID string) ([]Task, error)
+	FetchByUserID(c context.Context, userID *ID) ([]*Task, error)
 }

@@ -1,21 +1,14 @@
 package route
 
 import (
-	"time"
-
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/api/controller"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/bootstrap"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/mongo"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/repository"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/usecase"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/controller"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/middleware"
 )
 
-func NewProfileRouter(env *bootstrap.Env, timeout time.Duration, db mongo.Database, group *gin.RouterGroup) {
-	ur := repository.NewUserRepository(db, domain.CollectionUser)
-	pc := &controller.ProfileController{
-		ProfileUsecase: usecase.NewProfileUsecase(ur, timeout),
-	}
-	group.GET("/profile", pc.Fetch)
+func NewProfileRouter(group fiber.Router, controller *controller.ProfileController) {
+	// protected
+	protected := group.Group("protected")
+	protected.Use(middleware.JwtMiddleware)
+	protected.Get("/", controller.Fetch)
 }

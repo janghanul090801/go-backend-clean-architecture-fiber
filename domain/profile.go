@@ -8,5 +8,5 @@ type Profile struct {
 }
 
 type ProfileUsecase interface {
-	GetProfileByID(c context.Context, userID string) (*Profile, error)
+	GetProfileByID(c context.Context, userID *ID) (*Profile, error)
 }

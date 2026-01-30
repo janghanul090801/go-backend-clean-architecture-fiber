@@ -1,31 +1,27 @@
 version: "3.8"
 
 services:
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: app
-    container_name: app
-    restart: unless-stopped
-    env_file: .env
-    ports:
-      - "$PORT:$PORT"
-    depends_on:
-      - mongodb
+#  web:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: app
+#    restart: unless-stopped
+#    env_file: .env
+#    ports:
+#      - "$PORT:$PORT"
+#    depends_on:
+#      - postgres
 
-  mongodb:
-    image: mongo:6.0
-    container_name: mongodb
-    restart: unless-stopped
-    env_file: .env
+  postgres:
+    image: postgres:17
+    container_name: postgres-db
+    ports:
+      - 5433:5432
+    restart: always
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=$DB_USER
-      - MONGO_INITDB_ROOT_PASSWORD=$DB_PASS
-    ports:
-      - "$DB_PORT:$DB_PORT"
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: test
     volumes:
-      - dbdata:/data/db
-
-volumes:
-  dbdata:
+      - ./tmp/db-data:/var/lib/postgresql/data

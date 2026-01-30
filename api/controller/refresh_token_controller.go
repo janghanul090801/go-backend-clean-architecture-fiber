@@ -1,49 +1,52 @@
 package controller
 
 import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/bootstrap"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"net/http"
-
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/bootstrap"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/gin-gonic/gin"
 )
 
 type RefreshTokenController struct {
-	RefreshTokenUsecase domain.RefreshTokenUsecase
+	refreshTokenUsecase domain.RefreshTokenUsecase
 	Env                 *bootstrap.Env
 }
 
-func (rtc *RefreshTokenController) RefreshToken(c *gin.Context) {
+func NewRefreshTokenController(usecase domain.RefreshTokenUsecase, env *bootstrap.Env) *RefreshTokenController {
+	return &RefreshTokenController{
+		refreshTokenUsecase: usecase,
+		Env:                 env,
+	}
+}
+
+func (rtc *RefreshTokenController) RefreshToken(c *fiber.Ctx) error {
+	ctx := c.Context()
+
 	var request domain.RefreshTokenRequest
 
-	err := c.ShouldBind(&request)
+	err := c.BodyParser(&request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusBadRequest).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	id, err := rtc.RefreshTokenUsecase.ExtractIDFromToken(request.RefreshToken, rtc.Env.RefreshTokenSecret)
+	id, err := rtc.refreshTokenUsecase.ExtractIDFromToken(request.RefreshToken, rtc.Env.RefreshTokenSecret)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "User not found"})
-		return
+		return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: "User not found"})
 	}
 
-	user, err := rtc.RefreshTokenUsecase.GetUserByID(c, id)
+	user, err := rtc.refreshTokenUsecase.GetUserByID(ctx, id)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "User not found"})
-		return
+		return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: "User not found"})
 	}
 
-	accessToken, err := rtc.RefreshTokenUsecase.CreateAccessToken(&user, rtc.Env.AccessTokenSecret, rtc.Env.AccessTokenExpiryHour)
+	accessToken, err := rtc.refreshTokenUsecase.CreateAccessToken(user, rtc.Env.AccessTokenSecret, rtc.Env.AccessTokenExpiryHour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	refreshToken, err := rtc.RefreshTokenUsecase.CreateRefreshToken(&user, rtc.Env.RefreshTokenSecret, rtc.Env.RefreshTokenExpiryHour)
+	refreshToken, err := rtc.refreshTokenUsecase.CreateRefreshToken(user, rtc.Env.RefreshTokenSecret, rtc.Env.RefreshTokenExpiryHour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
 	refreshTokenResponse := domain.RefreshTokenResponse{
@@ -51,5 +54,5 @@ func (rtc *RefreshTokenController) RefreshToken(c *gin.Context) {
 		RefreshToken: refreshToken,
 	}
 
-	c.JSON(http.StatusOK, refreshTokenResponse)
+	return c.Status(http.StatusOK).JSON(refreshTokenResponse)
 }

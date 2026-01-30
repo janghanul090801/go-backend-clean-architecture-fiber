@@ -1,24 +1,29 @@
 package controller
 
 import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"net/http"
-
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/gin-gonic/gin"
 )
 
 type ProfileController struct {
-	ProfileUsecase domain.ProfileUsecase
+	profileUsecase domain.ProfileUsecase
 }
 
-func (pc *ProfileController) Fetch(c *gin.Context) {
-	userID := c.GetString("x-user-id")
+func NewProfileController(usecase domain.ProfileUsecase) *ProfileController {
+	return &ProfileController{
+		profileUsecase: usecase,
+	}
+}
 
-	profile, err := pc.ProfileUsecase.GetProfileByID(c, userID)
+func (pc *ProfileController) Fetch(c *fiber.Ctx) error {
+	ctx := c.Context()
+	userID := c.Locals("id").(domain.ID)
+
+	profile, err := pc.profileUsecase.GetProfileByID(ctx, &userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	c.JSON(http.StatusOK, profile)
+	return c.Status(http.StatusOK).JSON(profile)
 }

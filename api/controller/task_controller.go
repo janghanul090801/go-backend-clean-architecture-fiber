@@ -1,54 +1,53 @@
 package controller
 
 import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/bootstrap"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"net/http"
-
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type TaskController struct {
-	TaskUsecase domain.TaskUsecase
+	taskUsecase domain.TaskUsecase
 }
 
-func (tc *TaskController) Create(c *gin.Context) {
+func NewTaskController(usecase domain.TaskUsecase, env *bootstrap.Env) *TaskController {
+	return &TaskController{
+		taskUsecase: usecase,
+	}
+}
+
+func (tc *TaskController) Create(c *fiber.Ctx) error {
+	ctx := c.Context()
 	var task domain.Task
 
-	err := c.ShouldBind(&task)
+	err := c.BodyParser(&task)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusBadRequest).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	userID := c.GetString("x-user-id")
-	task.ID = primitive.NewObjectID()
+	userID := c.Locals("id").(domain.ID)
 
-	task.UserID, err = primitive.ObjectIDFromHex(userID)
+	task.UserID = userID
+
+	err = tc.taskUsecase.Create(ctx, &task)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	err = tc.TaskUsecase.Create(c, &task)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, domain.SuccessResponse{
+	return c.Status(http.StatusOK).JSON(domain.SuccessResponse{
 		Message: "Task created successfully",
 	})
 }
 
-func (u *TaskController) Fetch(c *gin.Context) {
-	userID := c.GetString("x-user-id")
+func (tc *TaskController) Fetch(c *fiber.Ctx) error {
+	ctx := c.Context()
+	userID := c.Locals("id").(domain.ID)
 
-	tasks, err := u.TaskUsecase.FetchByUserID(c, userID)
+	tasks, err := tc.taskUsecase.FetchByUserID(ctx, &userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	c.JSON(http.StatusOK, tasks)
+	return c.Status(http.StatusOK).JSON(tasks)
 }

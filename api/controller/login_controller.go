@@ -1,50 +1,52 @@
 package controller
 
 import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/bootstrap"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
-
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/bootstrap"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/gin-gonic/gin"
 )
 
 type LoginController struct {
-	LoginUsecase domain.LoginUsecase
-	Env          *bootstrap.Env
+	loginUsecase domain.LoginUsecase
+	env          *bootstrap.Env
 }
 
-func (lc *LoginController) Login(c *gin.Context) {
+func NewLoginController(usecase domain.LoginUsecase, env *bootstrap.Env) *LoginController {
+	return &LoginController{
+		loginUsecase: usecase,
+	}
+}
+
+func (lc *LoginController) Login(c *fiber.Ctx) error {
+	ctx := c.Context()
+
 	var request domain.LoginRequest
 
-	err := c.ShouldBind(&request)
+	err := c.BodyParser(&request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusBadRequest).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	user, err := lc.LoginUsecase.GetUserByEmail(c, request.Email)
+	user, err := lc.loginUsecase.GetUserByEmail(ctx, request.Email)
 	if err != nil {
-		c.JSON(http.StatusNotFound, domain.ErrorResponse{Message: "User not found with the given email"})
-		return
+		return c.Status(http.StatusNotFound).JSON(domain.ErrorResponse{Message: "User not found with the given email"})
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)) != nil {
-		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "Invalid credentials"})
-		return
+		return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: "Invalid credentials"})
 	}
 
-	accessToken, err := lc.LoginUsecase.CreateAccessToken(&user, lc.Env.AccessTokenSecret, lc.Env.AccessTokenExpiryHour)
+	accessToken, err := lc.loginUsecase.CreateAccessToken(user, lc.env.AccessTokenSecret, lc.env.AccessTokenExpiryHour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	refreshToken, err := lc.LoginUsecase.CreateRefreshToken(&user, lc.Env.RefreshTokenSecret, lc.Env.RefreshTokenExpiryHour)
+	refreshToken, err := lc.loginUsecase.CreateRefreshToken(user, lc.env.RefreshTokenSecret, lc.env.RefreshTokenExpiryHour)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
+		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
 	loginResponse := domain.LoginResponse{
@@ -52,5 +54,5 @@ func (lc *LoginController) Login(c *gin.Context) {
 		RefreshToken: refreshToken,
 	}
 
-	c.JSON(http.StatusOK, loginResponse)
+	return c.Status(http.StatusOK).JSON(loginResponse)
 }

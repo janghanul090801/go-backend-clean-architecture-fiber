@@ -14,8 +14,8 @@ type RefreshTokenResponse struct {
 }
 
 type RefreshTokenUsecase interface {
-	GetUserByID(c context.Context, id string) (User, error)
+	GetUserByID(c context.Context, id *ID) (*User, error)
 	CreateAccessToken(user *User, secret string, expiry int) (accessToken string, err error)
 	CreateRefreshToken(user *User, secret string, expiry int) (refreshToken string, err error)
-	ExtractIDFromToken(requestToken string, secret string) (string, error)
+	ExtractIDFromToken(requestToken string, secret string) (*ID, error)
 }

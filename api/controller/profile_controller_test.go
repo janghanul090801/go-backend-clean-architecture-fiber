@@ -3,23 +3,24 @@ package controller_test
 import (
 	"encoding/json"
 	"errors"
+	"github.com/gofiber/fiber/v2"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/controller"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain/mocks"
+	"github.com/stretchr/testify/require"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/api/controller"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain/mocks"
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func setUserID(userID string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Set("x-user-id", userID)
-		c.Next()
+func setUserID(userID domain.ID) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		c.Locals("id", userID)
+		return c.Next()
 	}
 }
 
@@ -31,23 +32,18 @@ func TestFetch(t *testing.T) {
 			Email: "test@gmail.com",
 		}
 
-		userObjectID := primitive.NewObjectID()
-		userID := userObjectID.Hex()
+		userID := domain.NewID()
 
 		mockProfileUsecase := new(mocks.ProfileUsecase)
 
-		mockProfileUsecase.On("GetProfileByID", mock.Anything, userID).Return(mockProfile, nil)
+		mockProfileUsecase.On("GetProfileByID", mock.Anything, &userID).Return(mockProfile, nil)
 
-		gin := gin.Default()
+		app := fiber.New()
 
-		rec := httptest.NewRecorder()
+		pc := controller.NewProfileController(mockProfileUsecase)
 
-		pc := &controller.ProfileController{
-			ProfileUsecase: mockProfileUsecase,
-		}
-
-		gin.Use(setUserID(userID))
-		gin.GET("/profile", pc.Fetch)
+		app.Use(setUserID(userID))
+		app.Get("/profile", pc.Fetch)
 
 		body, err := json.Marshal(mockProfile)
 		assert.NoError(t, err)
@@ -55,35 +51,34 @@ func TestFetch(t *testing.T) {
 		bodyString := string(body)
 
 		req := httptest.NewRequest(http.MethodGet, "/profile", nil)
-		gin.ServeHTTP(rec, req)
+		resp, err := app.Test(req)
+		require.NoError(t, err)
 
-		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
 
-		assert.Equal(t, bodyString, rec.Body.String())
+		bodyBytes, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+
+		assert.Equal(t, bodyString, string(bodyBytes))
 
 		mockProfileUsecase.AssertExpectations(t)
 	})
 
 	t.Run("error", func(t *testing.T) {
-		userObjectID := primitive.NewObjectID()
-		userID := userObjectID.Hex()
+		userID := domain.NewID()
 
 		mockProfileUsecase := new(mocks.ProfileUsecase)
 
-		customErr := errors.New("Unexpected")
+		customErr := errors.New("unexpected")
 
-		mockProfileUsecase.On("GetProfileByID", mock.Anything, userID).Return(nil, customErr)
+		mockProfileUsecase.On("GetProfileByID", mock.Anything, &userID).Return(nil, customErr)
 
-		gin := gin.Default()
+		app := fiber.New()
 
-		rec := httptest.NewRecorder()
+		pc := controller.NewProfileController(mockProfileUsecase)
 
-		pc := &controller.ProfileController{
-			ProfileUsecase: mockProfileUsecase,
-		}
-
-		gin.Use(setUserID(userID))
-		gin.GET("/profile", pc.Fetch)
+		app.Use(setUserID(userID))
+		app.Get("/profile", pc.Fetch)
 
 		body, err := json.Marshal(domain.ErrorResponse{Message: customErr.Error()})
 		assert.NoError(t, err)
@@ -91,11 +86,15 @@ func TestFetch(t *testing.T) {
 		bodyString := string(body)
 
 		req := httptest.NewRequest(http.MethodGet, "/profile", nil)
-		gin.ServeHTTP(rec, req)
+		resp, err := app.Test(req)
+		require.NoError(t, err)
 
-		assert.Equal(t, http.StatusInternalServerError, rec.Code)
+		assert.Equal(t, http.StatusInternalServerError, resp.StatusCode)
 
-		assert.Equal(t, bodyString, rec.Body.String())
+		bodyBytes, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+
+		assert.Equal(t, bodyString, string(bodyBytes))
 
 		mockProfileUsecase.AssertExpectations(t)
 	})

@@ -1,56 +1,32 @@
 package bootstrap
 
 import (
-	"context"
+	"entgo.io/ent/dialect"
 	"fmt"
-	"log"
-	"time"
-
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/mongo"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
+	_ "github.com/lib/pq"
 )
 
-func NewMongoDatabase(env *Env) mongo.Client {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+// New returns data source name
+func New(env *Env) string {
 
-	dbHost := env.DBHost
-	dbPort := env.DBPort
-	dbUser := env.DBUser
-	dbPass := env.DBPass
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		env.DBHost,
+		env.DBPort,
+		env.DBUser,
+		env.DBPass,
+		env.DBName,
+	)
 
-	mongodbURI := fmt.Sprintf("mongodb://%s:%s@%s:%s", dbUser, dbPass, dbHost, dbPort)
-
-	if dbUser == "" || dbPass == "" {
-		mongodbURI = fmt.Sprintf("mongodb://%s:%s", dbHost, dbPort)
-	}
-
-	client, err := mongo.NewClient(mongodbURI)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = client.Connect(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = client.Ping(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return client
+	return dsn
 }
 
-func CloseMongoDBConnection(client mongo.Client) {
-	if client == nil {
-		return
-	}
+// NewClient returns an orm client
+func NewClient(env *Env) (*ent.Client, error) {
+	var entOptions []ent.Option
+	entOptions = append(entOptions, ent.Debug())
 
-	err := client.Disconnect(context.TODO())
-	if err != nil {
-		log.Fatal(err)
-	}
+	dsn := New(env)
 
-	log.Println("Connection to MongoDB closed.")
+	return ent.Open(dialect.Postgres, dsn, entOptions...)
 }

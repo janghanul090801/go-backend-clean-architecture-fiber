@@ -2,9 +2,9 @@ package tokenutil
 
 import (
 	"fmt"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"time"
 
-	"github.com/amitshekhariitbhu/go-backend-clean-architecture/domain"
 	jwt "github.com/golang-jwt/jwt/v4"
 )
 
@@ -12,7 +12,7 @@ func CreateAccessToken(user *domain.User, secret string, expiry int) (accessToke
 	exp := time.Now().Add(time.Hour * time.Duration(expiry)).Unix()
 	claims := &domain.JwtCustomClaims{
 		Name: user.Name,
-		ID:   user.ID.Hex(),
+		ID:   user.ID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: exp,
 		},
@@ -27,7 +27,7 @@ func CreateAccessToken(user *domain.User, secret string, expiry int) (accessToke
 
 func CreateRefreshToken(user *domain.User, secret string, expiry int) (refreshToken string, err error) {
 	claimsRefresh := &domain.JwtCustomRefreshClaims{
-		ID: user.ID.Hex(),
+		ID: user.ID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * time.Duration(expiry)).Unix(),
 		},
@@ -43,7 +43,7 @@ func CreateRefreshToken(user *domain.User, secret string, expiry int) (refreshTo
 func IsAuthorized(requestToken string, secret string) (bool, error) {
 	_, err := jwt.Parse(requestToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(secret), nil
 	})
@@ -53,23 +53,26 @@ func IsAuthorized(requestToken string, secret string) (bool, error) {
 	return true, nil
 }
 
-func ExtractIDFromToken(requestToken string, secret string) (string, error) {
+// ExtractIDFromToken refreshToken 에서 id 추출
+func ExtractIDFromToken(requestToken string, secret string) (*domain.ID, error) {
 	token, err := jwt.Parse(requestToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(secret), nil
 	})
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 
 	if !ok && !token.Valid {
-		return "", fmt.Errorf("Invalid Token")
+		return nil, fmt.Errorf("invalid token")
 	}
 
-	return claims["id"].(string), nil
+	id := claims["id"].(domain.ID)
+
+	return &id, nil
 }
