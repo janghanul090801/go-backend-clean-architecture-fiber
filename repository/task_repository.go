@@ -52,7 +52,7 @@ func (r *taskRepository) FetchByUserID(c context.Context, userID *domain.ID) ([]
 
 	tasks := make([]*domain.Task, len(t))
 	for i, te := range t {
-		tasks[i] = domain.NewTaskFromEnt(te)
+		tasks[i] = toDomainTask(te)
 	}
 
 	return tasks, err

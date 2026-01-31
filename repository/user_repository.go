@@ -35,7 +35,7 @@ func (r *userRepository) Fetch(c context.Context) ([]*domain.User, error) {
 
 	users := make([]*domain.User, len(u))
 	for i, v := range u {
-		users[i] = domain.NewUserFromEnt(v)
+		users[i] = toDomainUser(v)
 	}
 
 	return users, err
@@ -49,7 +49,7 @@ func (r *userRepository) GetByEmail(c context.Context, email string) (*domain.Us
 		return nil, err
 	}
 
-	return domain.NewUserFromEnt(u), err
+	return toDomainUser(u), err
 }
 
 func (r *userRepository) GetByID(c context.Context, id *domain.ID) (*domain.User, error) {
@@ -58,5 +58,5 @@ func (r *userRepository) GetByID(c context.Context, id *domain.ID) (*domain.User
 		return nil, err
 	}
 
-	return domain.NewUserFromEnt(u), err
+	return toDomainUser(u), err
 }
