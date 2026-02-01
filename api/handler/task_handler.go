@@ -1,4 +1,4 @@
-package controller
+package handler
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -6,17 +6,17 @@ import (
 	"net/http"
 )
 
-type TaskController struct {
+type TaskHandler struct {
 	taskUsecase domain.TaskUsecase
 }
 
-func NewTaskController(usecase domain.TaskUsecase) *TaskController {
-	return &TaskController{
+func NewTaskHandler(usecase domain.TaskUsecase) *TaskHandler {
+	return &TaskHandler{
 		taskUsecase: usecase,
 	}
 }
 
-func (tc *TaskController) Create(c *fiber.Ctx) error {
+func (h *TaskHandler) Create(c *fiber.Ctx) error {
 	ctx := c.Context()
 	var task domain.Task
 
@@ -29,7 +29,7 @@ func (tc *TaskController) Create(c *fiber.Ctx) error {
 
 	task.UserID = userID
 
-	err = tc.taskUsecase.Create(ctx, &task)
+	err = h.taskUsecase.Create(ctx, &task)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
@@ -39,11 +39,11 @@ func (tc *TaskController) Create(c *fiber.Ctx) error {
 	})
 }
 
-func (tc *TaskController) Fetch(c *fiber.Ctx) error {
+func (h *TaskHandler) Fetch(c *fiber.Ctx) error {
 	ctx := c.Context()
 	userID := c.Locals("id").(domain.ID)
 
-	tasks, err := tc.taskUsecase.FetchByUserID(ctx, &userID)
+	tasks, err := h.taskUsecase.FetchByUserID(ctx, &userID)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}

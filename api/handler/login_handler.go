@@ -1,4 +1,4 @@
-package controller
+package handler
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -9,17 +9,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type LoginController struct {
+type LoginHanlder struct {
 	loginUsecase domain.LoginUsecase
 }
 
-func NewLoginController(usecase domain.LoginUsecase) *LoginController {
-	return &LoginController{
+func NewLoginHandler(usecase domain.LoginUsecase) *LoginHanlder {
+	return &LoginHanlder{
 		loginUsecase: usecase,
 	}
 }
 
-func (lc *LoginController) Login(c *fiber.Ctx) error {
+func (h *LoginHanlder) Login(c *fiber.Ctx) error {
 	ctx := c.Context()
 
 	var request domain.LoginRequest
@@ -29,7 +29,7 @@ func (lc *LoginController) Login(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	user, err := lc.loginUsecase.GetUserByEmail(ctx, request.Email)
+	user, err := h.loginUsecase.GetUserByEmail(ctx, request.Email)
 	if err != nil {
 		return c.Status(http.StatusNotFound).JSON(domain.ErrorResponse{Message: "User not found with the given email"})
 	}
@@ -38,12 +38,12 @@ func (lc *LoginController) Login(c *fiber.Ctx) error {
 		return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: "Invalid credentials"})
 	}
 
-	accessToken, err := lc.loginUsecase.CreateAccessToken(user, config.E.AccessTokenSecret, config.E.AccessTokenExpiryHour)
+	accessToken, err := h.loginUsecase.CreateAccessToken(user, config.E.AccessTokenSecret, config.E.AccessTokenExpiryHour)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	refreshToken, err := lc.loginUsecase.CreateRefreshToken(user, config.E.RefreshTokenSecret, config.E.RefreshTokenExpiryHour)
+	refreshToken, err := h.loginUsecase.CreateRefreshToken(user, config.E.RefreshTokenSecret, config.E.RefreshTokenExpiryHour)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}

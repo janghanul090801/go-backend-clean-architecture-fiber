@@ -1,4 +1,4 @@
-package controller
+package handler
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -7,17 +7,17 @@ import (
 	"net/http"
 )
 
-type RefreshTokenController struct {
+type RefreshTokenHandler struct {
 	refreshTokenUsecase domain.RefreshTokenUsecase
 }
 
-func NewRefreshTokenController(usecase domain.RefreshTokenUsecase) *RefreshTokenController {
-	return &RefreshTokenController{
+func NewRefreshTokenHandler(usecase domain.RefreshTokenUsecase) *RefreshTokenHandler {
+	return &RefreshTokenHandler{
 		refreshTokenUsecase: usecase,
 	}
 }
 
-func (rtc *RefreshTokenController) RefreshToken(c *fiber.Ctx) error {
+func (h *RefreshTokenHandler) RefreshToken(c *fiber.Ctx) error {
 	ctx := c.Context()
 
 	var request domain.RefreshTokenRequest
@@ -27,22 +27,22 @@ func (rtc *RefreshTokenController) RefreshToken(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	id, err := rtc.refreshTokenUsecase.ExtractIDFromToken(request.RefreshToken, config.E.RefreshTokenSecret)
+	id, err := h.refreshTokenUsecase.ExtractIDFromToken(request.RefreshToken, config.E.RefreshTokenSecret)
 	if err != nil {
 		return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: "User not found"})
 	}
 
-	user, err := rtc.refreshTokenUsecase.GetUserByID(ctx, id)
+	user, err := h.refreshTokenUsecase.GetUserByID(ctx, id)
 	if err != nil {
 		return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: "User not found"})
 	}
 
-	accessToken, err := rtc.refreshTokenUsecase.CreateAccessToken(user, config.E.AccessTokenSecret, config.E.AccessTokenExpiryHour)
+	accessToken, err := h.refreshTokenUsecase.CreateAccessToken(user, config.E.AccessTokenSecret, config.E.AccessTokenExpiryHour)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	refreshToken, err := rtc.refreshTokenUsecase.CreateRefreshToken(user, config.E.RefreshTokenSecret, config.E.RefreshTokenExpiryHour)
+	refreshToken, err := h.refreshTokenUsecase.CreateRefreshToken(user, config.E.RefreshTokenSecret, config.E.RefreshTokenExpiryHour)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}

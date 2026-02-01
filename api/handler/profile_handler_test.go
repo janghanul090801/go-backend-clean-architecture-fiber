@@ -1,10 +1,10 @@
-package controller_test
+package handler_test
 
 import (
 	"encoding/json"
 	"errors"
 	"github.com/gofiber/fiber/v2"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/controller"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/handler"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain/mocks"
 	"github.com/stretchr/testify/require"
@@ -40,7 +40,7 @@ func TestFetch(t *testing.T) {
 
 		app := fiber.New()
 
-		pc := controller.NewProfileController(mockProfileUsecase)
+		pc := handler.NewProfileHandler(mockProfileUsecase)
 
 		app.Use(setUserID(userID))
 		app.Get("/profile", pc.Fetch)
@@ -75,7 +75,7 @@ func TestFetch(t *testing.T) {
 
 		app := fiber.New()
 
-		pc := controller.NewProfileController(mockProfileUsecase)
+		pc := handler.NewProfileHandler(mockProfileUsecase)
 
 		app.Use(setUserID(userID))
 		app.Get("/profile", pc.Fetch)

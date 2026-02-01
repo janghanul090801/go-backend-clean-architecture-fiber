@@ -2,11 +2,11 @@ package route
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/controller"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/handler"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/middleware"
 )
 
-func NewRefreshTokenRouter(group fiber.Router, controller *controller.RefreshTokenController) {
+func NewRefreshTokenRouter(group fiber.Router, controller *handler.RefreshTokenHandler) {
 
 	// protected
 	protected := group.Group("protected")

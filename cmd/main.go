@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/controller"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/handler"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/route"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/bootstrap"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
@@ -37,11 +37,11 @@ func main() {
 	taskUsecase := usecase.NewTaskUsecase(taskRepository, timeout)
 
 	// controller
-	loginController := controller.NewLoginController(loginUsecase)
-	profileController := controller.NewProfileController(profileUsecase)
-	refreshTokenController := controller.NewRefreshTokenController(refreshTokenUsecase)
-	signupController := controller.NewSignupController(signupUsecase)
-	taskController := controller.NewTaskController(taskUsecase)
+	loginController := handler.NewLoginHandler(loginUsecase)
+	profileController := handler.NewProfileHandler(profileUsecase)
+	refreshTokenController := handler.NewRefreshTokenHandler(refreshTokenUsecase)
+	signupController := handler.NewSignupHandler(signupUsecase)
+	taskController := handler.NewTaskHandler(taskUsecase)
 
 	// router
 	route.NewLoginRouter(api.Group("/login"), loginController)

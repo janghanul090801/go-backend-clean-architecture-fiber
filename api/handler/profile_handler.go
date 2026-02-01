@@ -1,4 +1,4 @@
-package controller
+package handler
 
 import (
 	"github.com/gofiber/fiber/v2"
@@ -6,21 +6,21 @@ import (
 	"net/http"
 )
 
-type ProfileController struct {
+type ProfileHandler struct {
 	profileUsecase domain.ProfileUsecase
 }
 
-func NewProfileController(usecase domain.ProfileUsecase) *ProfileController {
-	return &ProfileController{
+func NewProfileHandler(usecase domain.ProfileUsecase) *ProfileHandler {
+	return &ProfileHandler{
 		profileUsecase: usecase,
 	}
 }
 
-func (pc *ProfileController) Fetch(c *fiber.Ctx) error {
+func (h *ProfileHandler) Fetch(c *fiber.Ctx) error {
 	ctx := c.Context()
 	userID := c.Locals("id").(domain.ID)
 
-	profile, err := pc.profileUsecase.GetProfileByID(ctx, &userID)
+	profile, err := h.profileUsecase.GetProfileByID(ctx, &userID)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
