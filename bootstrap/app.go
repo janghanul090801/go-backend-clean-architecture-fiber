@@ -11,21 +11,22 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/infra/database"
 )
 
 type Application struct {
-	Env    *Env
 	Client *ent.Client
 	App    *fiber.App
 }
 
 func App() Application {
 	app := &Application{}
-	app.Env = NewEnv()
+	config.NewEnv()
 
 	var err error
-	app.Client, err = NewClient(app.Env)
+	app.Client, err = database.NewClient()
 	if err != nil {
 		panic(err)
 	}

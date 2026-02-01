@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/bootstrap"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"net/http"
 
@@ -11,13 +11,11 @@ import (
 
 type SignupController struct {
 	signupUsecase domain.SignupUsecase
-	env           *bootstrap.Env
 }
 
-func NewSignupController(usecase domain.SignupUsecase, env *bootstrap.Env) *SignupController {
+func NewSignupController(usecase domain.SignupUsecase) *SignupController {
 	return &SignupController{
 		signupUsecase: usecase,
-		env:           env,
 	}
 }
 
@@ -56,12 +54,12 @@ func (sc *SignupController) Signup(c *fiber.Ctx) error {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	accessToken, err := sc.signupUsecase.CreateAccessToken(&user, sc.env.AccessTokenSecret, sc.env.AccessTokenExpiryHour)
+	accessToken, err := sc.signupUsecase.CreateAccessToken(&user, config.E.AccessTokenSecret, config.E.AccessTokenExpiryHour)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	refreshToken, err := sc.signupUsecase.CreateRefreshToken(&user, sc.env.RefreshTokenSecret, sc.env.RefreshTokenExpiryHour)
+	refreshToken, err := sc.signupUsecase.CreateRefreshToken(&user, config.E.RefreshTokenSecret, config.E.RefreshTokenExpiryHour)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}

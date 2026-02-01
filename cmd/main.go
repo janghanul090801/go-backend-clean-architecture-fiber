@@ -6,7 +6,8 @@ import (
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/controller"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/route"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/bootstrap"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/repository"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/infra/repository"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/usecase"
 	"log"
 	"net/http"
@@ -17,14 +18,12 @@ func main() {
 
 	app := bootstrap.App()
 
-	env := app.Env
-
 	api := app.App.Group("/api")
 
 	client := app.Client
 	defer app.CloseDBConnection()
 
-	timeout := time.Duration(env.ContextTimeout) * time.Second
+	timeout := time.Duration(config.E.ContextTimeout) * time.Second
 
 	// repository
 	userRepository := repository.NewUserRepository(client)
@@ -38,11 +37,11 @@ func main() {
 	taskUsecase := usecase.NewTaskUsecase(taskRepository, timeout)
 
 	// controller
-	loginController := controller.NewLoginController(loginUsecase, env)
+	loginController := controller.NewLoginController(loginUsecase)
 	profileController := controller.NewProfileController(profileUsecase)
-	refreshTokenController := controller.NewRefreshTokenController(refreshTokenUsecase, env)
-	signupController := controller.NewSignupController(signupUsecase, env)
-	taskController := controller.NewTaskController(taskUsecase, env)
+	refreshTokenController := controller.NewRefreshTokenController(refreshTokenUsecase)
+	signupController := controller.NewSignupController(signupUsecase)
+	taskController := controller.NewTaskController(taskUsecase)
 
 	// router
 	route.NewLoginRouter(api.Group("/login"), loginController)
@@ -63,5 +62,5 @@ func main() {
 		})
 	})
 
-	log.Fatal(app.App.Listen(env.ServerAddress))
+	log.Fatal(app.App.Listen(config.E.ServerAddress))
 }

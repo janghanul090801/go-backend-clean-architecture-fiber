@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/enttest"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/repository"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/infra/repository"
 	"github.com/stretchr/testify/assert"
 	"testing"
 

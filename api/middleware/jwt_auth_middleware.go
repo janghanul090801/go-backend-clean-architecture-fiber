@@ -2,30 +2,32 @@ package middleware
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"os"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/tokenutil"
+	"net/http"
+	"strings"
 )
 
-func JwtMiddleware(c *fiber.Ctx) error {
-	tokenStr := c.Cookies("access_token")
-	if tokenStr == "" {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "missing token"})
+func JwtMiddleware(secret string) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		authHeader := c.Get("Authorization")
+		if authHeader == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(domain.ErrorResponse{Message: "Authorization header is empty"})
+		}
+		t := strings.Split(authHeader, " ")
+		if len(t) == 2 {
+			authToken := t[1]
+			authorized, err := tokenutil.IsAuthorized(authToken, secret)
+			if authorized {
+				userID, err := tokenutil.ExtractIDFromToken(authToken, secret)
+				if err != nil {
+					return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: err.Error()})
+				}
+				c.Locals("id", userID)
+				return c.Next()
+			}
+			return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: err.Error()})
+		}
+		return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: "Not authorized"})
 	}
-
-	token, err := jwt.ParseWithClaims(tokenStr, &domain.JwtCustomClaims{}, func(t *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT_SECRET")), nil
-	})
-	if err != nil || !token.Valid {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": token})
-	}
-
-	claims, ok := token.Claims.(*domain.JwtCustomClaims)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "invalid claims"})
-	}
-
-	c.Locals("id", claims.ID)
-
-	return c.Next()
 }

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/bootstrap"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"net/http"
 )
@@ -11,7 +10,7 @@ type TaskController struct {
 	taskUsecase domain.TaskUsecase
 }
 
-func NewTaskController(usecase domain.TaskUsecase, env *bootstrap.Env) *TaskController {
+func NewTaskController(usecase domain.TaskUsecase) *TaskController {
 	return &TaskController{
 		taskUsecase: usecase,
 	}

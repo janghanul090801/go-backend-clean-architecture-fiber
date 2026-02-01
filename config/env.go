@@ -1,10 +1,12 @@
-package bootstrap
+package config
 
 import (
 	"log"
 
 	"github.com/spf13/viper"
 )
+
+var E Env
 
 type Env struct {
 	AppEnv                 string `mapstructure:"APP_ENV"`
@@ -21,23 +23,20 @@ type Env struct {
 	RefreshTokenSecret     string `mapstructure:"REFRESH_TOKEN_SECRET"`
 }
 
-func NewEnv() *Env {
-	env := Env{}
-	viper.SetConfigFile(".env")
+func NewEnv() {
+	viper.SetConfigFile(".E")
 
 	err := viper.ReadInConfig()
 	if err != nil {
-		log.Fatal("Can't find the file .env : ", err)
+		log.Fatal("Can't find the file .E : ", err)
 	}
 
-	err = viper.Unmarshal(&env)
+	err = viper.Unmarshal(&E)
 	if err != nil {
 		log.Fatal("Environment can't be loaded: ", err)
 	}
 
-	if env.AppEnv == "development" {
-		log.Println("The App is running in development env")
+	if E.AppEnv == "development" {
+		log.Println("The App is running in development E")
 	}
-
-	return &env
 }
