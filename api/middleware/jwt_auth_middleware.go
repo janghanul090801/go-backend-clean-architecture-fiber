@@ -2,32 +2,31 @@ package middleware
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/tokenutil"
 	"net/http"
 	"strings"
 )
 
-func JwtMiddleware(secret string) fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		authHeader := c.Get("Authorization")
-		if authHeader == "" {
-			return c.Status(fiber.StatusUnauthorized).JSON(domain.ErrorResponse{Message: "Authorization header is empty"})
-		}
-		t := strings.Split(authHeader, " ")
-		if len(t) == 2 {
-			authToken := t[1]
-			authorized, err := tokenutil.IsAuthorized(authToken, secret)
-			if authorized {
-				userID, err := tokenutil.ExtractIDFromToken(authToken, secret)
-				if err != nil {
-					return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: err.Error()})
-				}
-				c.Locals("id", userID)
-				return c.Next()
-			}
-			return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: err.Error()})
-		}
-		return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: "Not authorized"})
+func JwtMiddleware(c *fiber.Ctx) error {
+	authHeader := c.Get("Authorization")
+	if authHeader == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(domain.ErrorResponse{Message: "Authorization header is empty"})
 	}
+	t := strings.Split(authHeader, " ")
+	if len(t) == 2 {
+		authToken := t[1]
+		authorized, err := tokenutil.IsAuthorized(authToken, config.E.AccessTokenSecret)
+		if authorized {
+			userID, err := tokenutil.ExtractIDFromToken(authToken, config.E.AccessTokenSecret)
+			if err != nil {
+				return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: err.Error()})
+			}
+			c.Locals("id", userID)
+			return c.Next()
+		}
+		return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: err.Error()})
+	}
+	return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: "Not authorized"})
 }
