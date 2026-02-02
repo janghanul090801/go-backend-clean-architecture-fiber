@@ -93,13 +93,13 @@ Usecase, Repository 또는 데이터베이스의 인터페이스를 변경할 �
 ```
 .
 ├── api/
-│   ├── controller/
-│   │   ├── login_controller.go
-│   │   ├── profile_controller_test.go
-│   │   ├── profile_controller.go
-│   │   ├── refresh_token_controller.go
-│   │   ├── signup_controller.go
-│   │   └── task_controller.go
+│   ├── handler/
+│   │   ├── login_handler.go
+│   │   ├── profile_handler_test.go
+│   │   ├── profile_handler.go
+│   │   ├── refresh_token_handler.go
+│   │   ├── signup_handler.go
+│   │   └── task_handler.go
 │   ├── middleware/
 │   │   └── jwt_auth_middleware.go
 │   └── route/
@@ -108,12 +108,18 @@ Usecase, Repository 또는 데이터베이스의 인터페이스를 변경할 �
 │       ├── refresh_token_route.go
 │       ├── signup_route.go
 │       └── task_route.go
+├── assets/
+│   ├── button-view-api-docs.png
+│   ├── go-arch-private-api-request-flow.png
+│   ├── go-arch-public-api-request-flow.png
+│   ├── go-backend-arch-diagram.png
+│   └── go-backend-clean-architecture.png
 ├── bootstrap/
-│   ├── app.go
-│   ├── database.go
-│   └── env.go
+│   └── app.go
 ├── cmd/
 │   └── main.go
+├── config/
+│   └── env.go
 ├── domain/
 │   ├── domain.go
 │   ├── error_response.go
@@ -134,51 +140,23 @@ Usecase, Repository 또는 데이터베이스의 인터페이스를 변경할 �
 │       ├── TaskUsecase.go
 │       └── UserRepository.go
 ├── ent/
-│   ├── client.go
-│   ├── ent.go
-│   ├── generate.go
-│   ├── mutation.go
-│   ├── runtime.go
-│   ├── task_create.go
-│   ├── task_delete.go
-│   ├── task_query.go
-│   ├── task_update.go
-│   ├── task.go
-│   ├── tx.go
-│   ├── user_create.go
-│   ├── user_delete.go
-│   ├── user_query.go
-│   ├── user_update.go
-│   ├── user.go
-│   ├── enttest/
-│   │   └── enttest.go
-│   ├── hook/
-│   │   └── hook.go
-│   ├── migrate/
-│   │   ├── migrate.go
-│   │   └── schema.go
-│   ├── predicate/
-│   │   └── predicate.go
-│   ├── runtime/
-│   │   └── runtime.go
 │   ├── schema/
 │   │   ├── task.go
 │   │   └── user.go
-│   ├── task/
-│   │   ├── task.go
-│   │   └── where.go
-│   └── user/
-│       ├── user.go
-│       └── where.go
+│   └── ...
+├── infra/
+│   ├── database/
+│   │   └── database.go
+│   └── repository/
+│       ├── mapper.go
+│       ├── task_repository.go
+│       ├── user_repository_test.go
+│       └── user_repository.go
 ├── internal/
 │   ├── fakeutil/
 │   │   └── fakeutil.go
 │   └── tokenutil/
 │       └── tokenutil.go
-├── repository/
-│   ├── task_repository.go
-│   ├── user_repository_test.go
-│   └── user_repository.go
 ├── usecase/
 │   ├── login_usecase.go
 │   ├── profile_usecase.go
@@ -186,12 +164,6 @@ Usecase, Repository 또는 데이터베이스의 인터페이스를 변경할 �
 │   ├── signup_usecase.go
 │   ├── task_usecase_test.go
 │   └── task_usecase.go
-├── assets/
-│   ├── button-view-api-docs.png
-│   ├── go-arch-private-api-request-flow.png
-│   ├── go-arch-public-api-request-flow.png
-│   ├── go-backend-arch-diagram.png
-│   └── go-backend-clean-architecture.png
 ├── .env.example
 ├── .gitignore
 ├── docker-compose.yaml
