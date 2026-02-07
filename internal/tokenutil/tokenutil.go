@@ -2,8 +2,9 @@ package tokenutil
 
 import (
 	"fmt"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"time"
+
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 
 	jwt "github.com/golang-jwt/jwt/v4"
 )
@@ -72,7 +73,10 @@ func ExtractIDFromToken(requestToken string, secret string) (*domain.ID, error) 
 		return nil, fmt.Errorf("invalid token")
 	}
 
-	id := claims["id"].(domain.ID)
+	id, err := domain.StringToID(claims["id"].(string))
+	if err != nil {
+		return nil, err
+	}
 
 	return &id, nil
 }

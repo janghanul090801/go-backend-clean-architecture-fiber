@@ -2,8 +2,9 @@ package usecase
 
 import (
 	"context"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"time"
+
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 )
 
 type taskUsecase struct {
@@ -18,7 +19,7 @@ func NewTaskUsecase(taskRepository domain.TaskRepository, timeout time.Duration)
 	}
 }
 
-func (tu *taskUsecase) Create(c context.Context, task *domain.Task) error {
+func (tu *taskUsecase) Create(c context.Context, task *domain.Task) (*domain.Task, error) {
 	ctx, cancel := context.WithTimeout(c, tu.contextTimeout)
 	defer cancel()
 	return tu.taskRepository.Create(ctx, task)

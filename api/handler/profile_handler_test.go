@@ -3,15 +3,16 @@ package handler_test
 import (
 	"encoding/json"
 	"errors"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/handler"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain/mocks"
 	"github.com/stretchr/testify/require"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

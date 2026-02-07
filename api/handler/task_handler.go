@@ -1,9 +1,10 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"net/http"
 )
 
 type TaskHandler struct {
@@ -29,7 +30,7 @@ func (h *TaskHandler) Create(c *fiber.Ctx) error {
 
 	task.UserID = userID
 
-	err = h.taskUsecase.Create(ctx, &task)
+	_, err = h.taskUsecase.Create(ctx, &task)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}

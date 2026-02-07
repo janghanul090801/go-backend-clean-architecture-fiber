@@ -1,10 +1,11 @@
 package handler
 
 import (
+	"net/http"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -43,23 +44,23 @@ func (h *SignupHandler) Signup(c *fiber.Ctx) error {
 
 	request.Password = string(encryptedPassword)
 
-	user := domain.User{
+	user := &domain.User{
 		Name:     request.Name,
 		Email:    request.Email,
 		Password: request.Password,
 	}
 
-	err = h.signupUsecase.Create(ctx, &user)
+	user, err = h.signupUsecase.Create(ctx, user)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	accessToken, err := h.signupUsecase.CreateAccessToken(&user, config.E.AccessTokenSecret, config.E.AccessTokenExpiryHour)
+	accessToken, err := h.signupUsecase.CreateAccessToken(user, config.E.AccessTokenSecret, config.E.AccessTokenExpiryHour)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	refreshToken, err := h.signupUsecase.CreateRefreshToken(&user, config.E.RefreshTokenSecret, config.E.RefreshTokenExpiryHour)
+	refreshToken, err := h.signupUsecase.CreateRefreshToken(user, config.E.RefreshTokenSecret, config.E.RefreshTokenExpiryHour)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}

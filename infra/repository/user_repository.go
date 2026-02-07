@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/user"
@@ -17,14 +18,17 @@ func NewUserRepository(client *ent.Client) domain.UserRepository {
 	}
 }
 
-func (r *userRepository) Create(c context.Context, user *domain.User) error {
-	_, err := r.client.User.Create().
+func (r *userRepository) Create(c context.Context, user *domain.User) (*domain.User, error) {
+	u, err := r.client.User.Create().
 		SetName(user.Name).
 		SetEmail(user.Email).
 		SetPassword(user.Password).
 		Save(c)
+	if err != nil {
+		return nil, err
+	}
 
-	return err
+	return toDomainUser(u), nil
 }
 
 func (r *userRepository) Fetch(c context.Context) ([]*domain.User, error) {

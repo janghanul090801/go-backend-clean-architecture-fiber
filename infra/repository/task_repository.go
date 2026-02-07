@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/ent/task"
@@ -18,14 +19,18 @@ func NewTaskRepository(client *ent.Client) domain.TaskRepository {
 	}
 }
 
-func (r *taskRepository) Create(c context.Context, task *domain.Task) error {
+func (r *taskRepository) Create(c context.Context, task *domain.Task) (*domain.Task, error) {
 
-	_, err := r.client.Task.Create().
+	t, err := r.client.Task.Create().
 		SetTitle(task.Title).
 		SetOwnerID(task.UserID).
 		Save(c)
 
-	return err
+	if err != nil {
+		return nil, err
+	}
+
+	return toDomainTask(t), nil
 }
 
 func (r *taskRepository) FetchByUserID(c context.Context, userID *domain.ID) ([]*domain.Task, error) {

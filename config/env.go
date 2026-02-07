@@ -24,7 +24,7 @@ type Env struct {
 }
 
 func NewEnv() {
-	viper.SetConfigFile(".E")
+	viper.SetConfigFile(".env")
 
 	err := viper.ReadInConfig()
 	if err != nil {
