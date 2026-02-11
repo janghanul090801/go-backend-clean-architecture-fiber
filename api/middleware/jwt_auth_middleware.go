@@ -1,15 +1,16 @@
 package middleware
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"net/http"
+	"strings"
+
+	"github.com/gofiber/fiber/v3"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/tokenutil"
-	"net/http"
-	"strings"
 )
 
-func JwtMiddleware(c *fiber.Ctx) error {
+func JwtMiddleware(c fiber.Ctx) error {
 	authHeader := c.Get("Authorization")
 	if authHeader == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(domain.ErrorResponse{Message: "Authorization header is empty"})

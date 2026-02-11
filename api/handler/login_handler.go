@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"net/http"
+
+	"github.com/gofiber/fiber/v3"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,12 +20,12 @@ func NewLoginHandler(usecase domain.LoginUsecase) *LoginHanlder {
 	}
 }
 
-func (h *LoginHanlder) Login(c *fiber.Ctx) error {
-	ctx := c.Context()
+func (h *LoginHanlder) Login(c fiber.Ctx) error {
+	ctx := c.RequestCtx()
 
 	var request domain.LoginRequest
 
-	err := c.BodyParser(&request)
+	err := c.Bind().Body(&request)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(domain.ErrorResponse{Message: err.Error()})
 	}

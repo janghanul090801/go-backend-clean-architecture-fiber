@@ -30,7 +30,11 @@ func (r *taskRepository) Create(c context.Context, task *domain.Task) (*domain.T
 		return nil, err
 	}
 
-	return toDomainTask(t), nil
+	return &domain.Task{
+		ID:        t.ID,
+		Title:     t.Title,
+		CreatedAt: t.CreatedAt,
+	}, nil
 }
 
 func (r *taskRepository) FetchByUserID(c context.Context, userID *domain.ID) ([]*domain.Task, error) {

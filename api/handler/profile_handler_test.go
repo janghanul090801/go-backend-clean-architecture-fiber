@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/handler"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain/mocks"
@@ -19,7 +19,7 @@ import (
 )
 
 func setUserID(userID domain.ID) fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		c.Locals("id", userID)
 		return c.Next()
 	}

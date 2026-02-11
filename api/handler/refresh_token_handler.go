@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"net/http"
+
+	"github.com/gofiber/fiber/v3"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"net/http"
 )
 
 type RefreshTokenHandler struct {
@@ -17,12 +18,12 @@ func NewRefreshTokenHandler(usecase domain.RefreshTokenUsecase) *RefreshTokenHan
 	}
 }
 
-func (h *RefreshTokenHandler) RefreshToken(c *fiber.Ctx) error {
-	ctx := c.Context()
+func (h *RefreshTokenHandler) RefreshToken(c fiber.Ctx) error {
+	ctx := c.RequestCtx()
 
 	var request domain.RefreshTokenRequest
 
-	err := c.BodyParser(&request)
+	err := c.Bind().Body(&request)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(domain.ErrorResponse{Message: err.Error()})
 	}

@@ -1,27 +1,66 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/handler"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/route"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/bootstrap"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/infra/repository"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/usecase"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/compress"
+	"github.com/gofiber/fiber/v3/middleware/cors"
+	"github.com/gofiber/fiber/v3/middleware/etag"
+	"github.com/gofiber/fiber/v3/middleware/favicon"
+	"github.com/gofiber/fiber/v3/middleware/limiter"
+	"github.com/gofiber/fiber/v3/middleware/logger"
+	"github.com/gofiber/fiber/v3/middleware/recover"
+	"github.com/gofiber/fiber/v3/middleware/requestid"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/handler"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/route"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/infra/database"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/infra/repository"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/usecase"
 )
 
 func main() {
+	config.NewEnv()
 
-	app := bootstrap.App()
+	app := fiber.New(fiber.Config{
+		AppName:      "Fiber Ent Clean Architecture",
+		ServerHeader: "Fiber",
+	})
 
-	api := app.App.Group("/api")
+	// Use global middlewares.
+	app.Use(cors.New())
+	app.Use(compress.New())
+	app.Use(etag.New())
+	app.Use(favicon.New())
+	app.Use(limiter.New(limiter.Config{
+		Max: 100,
+		LimitReached: func(c fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(&fiber.Map{
+				"status":  "fail",
+				"message": "You have requested too many in a single time-frame! Please wait another minute!",
+			})
+		},
+	}))
+	app.Use(logger.New())
+	app.Use(recover.New())
+	app.Use(requestid.New())
 
-	client := app.Client
-	defer app.CloseDBConnection()
+	api := app.Group("/api")
+
+	client, err := database.NewClient()
+	if err != nil {
+		panic(err)
+	}
+	defer client.Close()
+
+	if err = client.Schema.Create(context.Background()); err != nil {
+		panic(err)
+	}
 
 	timeout := time.Duration(config.E.ContextTimeout) * time.Second
 
@@ -50,7 +89,7 @@ func main() {
 	route.NewSignupRouter(api.Group("/signup"), signupController)
 	route.NewTaskRouter(api.Group("/task"), taskController)
 
-	app.App.All("*", func(c *fiber.Ctx) error {
+	app.All("*", func(c fiber.Ctx) error {
 		notFoundErr := fmt.Errorf(
 			"route '%s' does not exist in this API",
 			c.OriginalURL(),
@@ -62,5 +101,5 @@ func main() {
 		})
 	})
 
-	log.Fatal(app.App.Listen(config.E.ServerAddress))
+	log.Fatal(app.Listen(config.E.ServerAddress))
 }

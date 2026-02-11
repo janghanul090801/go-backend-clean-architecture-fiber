@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 )
 
@@ -17,34 +17,38 @@ func NewTaskHandler(usecase domain.TaskUsecase) *TaskHandler {
 	}
 }
 
-func (h *TaskHandler) Create(c *fiber.Ctx) error {
-	ctx := c.Context()
+func (h *TaskHandler) Create(c fiber.Ctx) error {
+	ctx := c.RequestCtx()
 	var task domain.Task
 
-	err := c.BodyParser(&task)
+	err := c.Bind().Body(&task)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
-	userID := c.Locals("id").(domain.ID)
+	userID := c.Locals("id").(*domain.ID)
 
-	task.UserID = userID
+	println("live")
+
+	task.UserID = *userID
 
 	_, err = h.taskUsecase.Create(ctx, &task)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
 
+	println("live")
+
 	return c.Status(http.StatusOK).JSON(domain.SuccessResponse{
 		Message: "Task created successfully",
 	})
 }
 
-func (h *TaskHandler) Fetch(c *fiber.Ctx) error {
-	ctx := c.Context()
-	userID := c.Locals("id").(domain.ID)
+func (h *TaskHandler) Fetch(c fiber.Ctx) error {
+	ctx := c.RequestCtx()
+	userID := c.Locals("id").(*domain.ID)
 
-	tasks, err := h.taskUsecase.FetchByUserID(ctx, &userID)
+	tasks, err := h.taskUsecase.FetchByUserID(ctx, userID)
 	if err != nil {
 		return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
 	}

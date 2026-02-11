@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 
@@ -20,11 +20,11 @@ func NewSignupHandler(usecase domain.SignupUsecase) *SignupHandler {
 	}
 }
 
-func (h *SignupHandler) Signup(c *fiber.Ctx) error {
-	ctx := c.Context()
+func (h *SignupHandler) Signup(c fiber.Ctx) error {
+	ctx := c.RequestCtx()
 	var request domain.SignupRequest
 
-	err := c.BodyParser(&request)
+	err := c.Bind().Body(&request)
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(domain.ErrorResponse{Message: err.Error()})
 	}
