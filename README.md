@@ -183,7 +183,7 @@ Usecase, Repository 또는 데이터베이스의 인터페이스를 변경할 �
   - request
 
   ```
-  curl --location --request POST 'http://localhost:8080/signup' \
+  curl --location --request POST 'http://localhost:8080/api/signup' \
   --data-urlencode 'email=test@gmail.com' \
   --data-urlencode 'password=test' \
   --data-urlencode 'name=Test Name'
@@ -203,7 +203,7 @@ Usecase, Repository 또는 데이터베이스의 인터페이스를 변경할 �
   - request
 
   ```
-  curl --location --request POST 'http://localhost:8080/login' \
+  curl --location --request POST 'http://localhost:8080/api/login' \
   --data-urlencode 'email=test@gmail.com' \
   --data-urlencode 'password=test'
   ```
@@ -222,7 +222,7 @@ Usecase, Repository 또는 데이터베이스의 인터페이스를 변경할 �
   - request
 
   ```
-  curl --location --request GET 'http://localhost:8080/profile' \
+  curl --location --request GET 'http://localhost:8080/api/profile/protected' \
   --header 'Authorization: Bearer access_token'
   ```
 
@@ -240,7 +240,7 @@ Usecase, Repository 또는 데이터베이스의 인터페이스를 변경할 �
   - request
 
   ```
-  curl --location --request POST 'http://localhost:8080/task' \
+  curl --location --request POST 'http://localhost:8080/api/task/protected' \
   --header 'Authorization: Bearer access_token' \
   --header 'Content-Type: application/x-www-form-urlencoded' \
   --data-urlencode 'title=Test Task'
@@ -259,7 +259,7 @@ Usecase, Repository 또는 데이터베이스의 인터페이스를 변경할 �
   - request
 
   ```
-  curl --location --request GET 'http://localhost:8080/task' \
+  curl --location --request GET 'http://localhost:8080/api/task/protected' \
   --header 'Authorization: Bearer access_token'
   ```
 
@@ -281,7 +281,7 @@ Usecase, Repository 또는 데이터베이스의 인터페이스를 변경할 �
   - request
 
   ```
-  curl --location --request POST 'http://localhost:8080/refresh' \
+  curl --location --request POST 'http://localhost:8080/api/refresh' \
   --header 'Content-Type: application/x-www-form-urlencoded' \
   --data-urlencode 'refreshToken=refresh_token'
   ```
