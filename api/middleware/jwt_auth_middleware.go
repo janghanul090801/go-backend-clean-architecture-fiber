@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/tokenutil"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/internal/token"
 )
 
 func JwtMiddleware(c fiber.Ctx) error {
@@ -18,9 +18,9 @@ func JwtMiddleware(c fiber.Ctx) error {
 	t := strings.Split(authHeader, " ")
 	if len(t) == 2 {
 		authToken := t[1]
-		authorized, err := tokenutil.IsAuthorized(authToken, config.E.AccessTokenSecret)
+		authorized, err := token.IsAuthorized(authToken, config.E.AccessTokenSecret)
 		if authorized {
-			userID, err := tokenutil.ExtractIDFromToken(authToken, config.E.AccessTokenSecret)
+			userID, err := token.ExtractIDFromToken(authToken, config.E.AccessTokenSecret)
 			if err != nil {
 				return c.Status(http.StatusUnauthorized).JSON(domain.ErrorResponse{Message: err.Error()})
 			}

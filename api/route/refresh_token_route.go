@@ -3,10 +3,11 @@ package route
 import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/handler"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 )
 
-func NewRefreshTokenRouter(group fiber.Router, controller *handler.RefreshTokenHandler) {
+func NewRefreshTokenRouter(app fiber.Router, service domain.AuthUseCase) {
 
 	// protected
-	group.Post("/", controller.RefreshToken)
+	app.Post("/", handler.RefreshToken(service))
 }

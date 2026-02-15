@@ -16,7 +16,6 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/logger"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
-	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/handler"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/route"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/config"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/infra/database"
@@ -69,25 +68,16 @@ func main() {
 	taskRepository := repository.NewTaskRepository(client)
 
 	// usecase
-	loginUsecase := usecase.NewLoginUsecase(userRepository, timeout)
-	profileUsecase := usecase.NewProfileUsecase(userRepository, timeout)
-	refreshTokenUsecase := usecase.NewRefreshTokenUsecase(userRepository, timeout)
-	signupUsecase := usecase.NewSignupUsecase(userRepository, timeout)
-	taskUsecase := usecase.NewTaskUsecase(taskRepository, timeout)
-
-	// controller
-	loginController := handler.NewLoginHandler(loginUsecase)
-	profileController := handler.NewProfileHandler(profileUsecase)
-	refreshTokenController := handler.NewRefreshTokenHandler(refreshTokenUsecase)
-	signupController := handler.NewSignupHandler(signupUsecase)
-	taskController := handler.NewTaskHandler(taskUsecase)
+	profileUsecase := usecase.NewProfileUseCase(userRepository, timeout)
+	authUseCase := usecase.NewAuthUseCase(userRepository, timeout)
+	taskUsecase := usecase.NewTaskUseCase(taskRepository, timeout)
 
 	// router
-	route.NewLoginRouter(api.Group("/login"), loginController)
-	route.NewProfileRouter(api.Group("/profile"), profileController)
-	route.NewRefreshTokenRouter(api.Group("/refresh"), refreshTokenController)
-	route.NewSignupRouter(api.Group("/signup"), signupController)
-	route.NewTaskRouter(api.Group("/task"), taskController)
+	route.NewLoginRouter(api.Group("/login"), authUseCase)
+	route.NewProfileRouter(api.Group("/profile"), profileUsecase)
+	route.NewRefreshTokenRouter(api.Group("/refresh"), authUseCase)
+	route.NewSignupRouter(api.Group("/signup"), authUseCase)
+	route.NewTaskRouter(api.Group("/task"), taskUsecase)
 
 	app.All("*", func(c fiber.Ctx) error {
 		notFoundErr := fmt.Errorf(

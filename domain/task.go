@@ -17,7 +17,7 @@ type TaskRepository interface {
 	FetchByUserID(c context.Context, userID *ID) ([]*Task, error)
 }
 
-type TaskUsecase interface {
+type TaskUseCase interface {
 	Create(c context.Context, task *Task) (*Task, error)
 	FetchByUserID(c context.Context, userID *ID) ([]*Task, error)
 }

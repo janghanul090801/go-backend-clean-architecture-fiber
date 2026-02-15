@@ -35,16 +35,14 @@ func TestFetch(t *testing.T) {
 
 		userID := domain.NewID()
 
-		mockProfileUsecase := new(mocks.ProfileUsecase)
+		mockProfileUseCase := new(mocks.ProfileUsecase)
 
-		mockProfileUsecase.On("GetProfileByID", mock.Anything, &userID).Return(mockProfile, nil)
+		mockProfileUseCase.On("GetProfileByID", mock.Anything, &userID).Return(mockProfile, nil)
 
 		app := fiber.New()
 
-		pc := handler.NewProfileHandler(mockProfileUsecase)
-
 		app.Use(setUserID(userID))
-		app.Get("/profile", pc.Fetch)
+		app.Get("/profile", handler.FetchProfile(mockProfileUseCase))
 
 		body, err := json.Marshal(mockProfile)
 		assert.NoError(t, err)
@@ -62,24 +60,22 @@ func TestFetch(t *testing.T) {
 
 		assert.Equal(t, bodyString, string(bodyBytes))
 
-		mockProfileUsecase.AssertExpectations(t)
+		mockProfileUseCase.AssertExpectations(t)
 	})
 
 	t.Run("error", func(t *testing.T) {
 		userID := domain.NewID()
 
-		mockProfileUsecase := new(mocks.ProfileUsecase)
+		mockProfileUseCase := new(mocks.ProfileUsecase)
 
 		customErr := errors.New("unexpected")
 
-		mockProfileUsecase.On("GetProfileByID", mock.Anything, &userID).Return(nil, customErr)
+		mockProfileUseCase.On("GetProfileByID", mock.Anything, &userID).Return(nil, customErr)
 
 		app := fiber.New()
 
-		pc := handler.NewProfileHandler(mockProfileUsecase)
-
 		app.Use(setUserID(userID))
-		app.Get("/profile", pc.Fetch)
+		app.Get("/profile", handler.FetchProfile(mockProfileUseCase))
 
 		body, err := json.Marshal(domain.ErrorResponse{Message: customErr.Error()})
 		assert.NoError(t, err)
@@ -97,7 +93,7 @@ func TestFetch(t *testing.T) {
 
 		assert.Equal(t, bodyString, string(bodyBytes))
 
-		mockProfileUsecase.AssertExpectations(t)
+		mockProfileUseCase.AssertExpectations(t)
 	})
 
 }

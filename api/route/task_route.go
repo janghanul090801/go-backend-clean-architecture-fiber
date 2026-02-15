@@ -4,13 +4,14 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/handler"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/api/middleware"
+	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 )
 
-func NewTaskRouter(group fiber.Router, controller *handler.TaskHandler) {
+func NewTaskRouter(app fiber.Router, service domain.TaskUseCase) {
 
 	// protected
-	protected := group.Group("protected")
+	protected := app.Group("protected")
 	protected.Use(middleware.JwtMiddleware)
-	protected.Get("/", controller.Fetch)
-	protected.Post("/", controller.Create)
+	protected.Get("/", handler.FetchTask(service))
+	protected.Post("/", handler.CreateTask(service))
 }
