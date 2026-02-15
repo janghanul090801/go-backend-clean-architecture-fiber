@@ -7,7 +7,5 @@ import (
 )
 
 func NewRefreshTokenRouter(app fiber.Router, service domain.AuthUseCase) {
-
-	// protected
 	app.Post("/", handler.RefreshToken(service))
 }
