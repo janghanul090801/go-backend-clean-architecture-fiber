@@ -20,7 +20,7 @@ import (
 
 func setUserID(userID domain.ID) fiber.Handler {
 	return func(c fiber.Ctx) error {
-		c.Locals("id", userID)
+		c.Locals("id", &userID)
 		return c.Next()
 	}
 }
