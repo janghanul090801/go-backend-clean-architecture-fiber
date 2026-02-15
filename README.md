@@ -91,7 +91,6 @@ make test
 │   │   └── fakeutil.go
 │   └── token/
 │       └── token.go
-├── tmp/
 ├── usecase/
 │   ├── auth_usecase.go
 │   ├── profile_usecase.go
