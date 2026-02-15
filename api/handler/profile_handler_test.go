@@ -35,7 +35,7 @@ func TestFetch(t *testing.T) {
 
 		userID := domain.NewID()
 
-		mockProfileUseCase := new(mocks.ProfileUsecase)
+		mockProfileUseCase := new(mocks.ProfileUseCase)
 
 		mockProfileUseCase.On("GetProfileByID", mock.Anything, &userID).Return(mockProfile, nil)
 
@@ -66,7 +66,7 @@ func TestFetch(t *testing.T) {
 	t.Run("error", func(t *testing.T) {
 		userID := domain.NewID()
 
-		mockProfileUseCase := new(mocks.ProfileUsecase)
+		mockProfileUseCase := new(mocks.ProfileUseCase)
 
 		customErr := errors.New("unexpected")
 

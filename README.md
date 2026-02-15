@@ -58,12 +58,10 @@ make test
 │   └── env.go
 ├── domain/
 │   ├── mocks/
-│   │   ├── LoginUsecase.go
-│   │   ├── ProfileUsecase.go
-│   │   ├── RefreshTokenUsecase.go
-│   │   ├── SignupUsecase.go
+│   │   ├── AuthUseCase.go
+│   │   ├── ProfileUseCase.go
 │   │   ├── TaskRepository.go
-│   │   ├── TaskUsecase.go
+│   │   ├── TaskUseCase.go
 │   │   └── UserRepository.go
 │   ├── auth.go
 │   ├── domain.go
