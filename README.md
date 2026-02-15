@@ -74,42 +74,10 @@ make test
 │   ├── task.go
 │   └── user.go
 ├── ent/
-│   ├── enttest/
-│   │   └── enttest.go
-│   ├── hook/
-│   │   └── hook.go
-│   ├── migrate/
-│   │   ├── migrate.go
-│   │   └── schema.go
-│   ├── predicate/
-│   │   └── predicate.go
-│   ├── runtime/
-│   │   └── runtime.go
 │   ├── schema/
 │   │   ├── task.go
 │   │   └── user.go
-│   ├── task/
-│   │   ├── task.go
-│   │   └── where.go
-│   ├── user/
-│   │   ├── user.go
-│   │   └── where.go
-│   ├── client.go
-│   ├── ent.go
-│   ├── generate.go
-│   ├── mutation.go
-│   ├── runtime.go
-│   ├── task_create.go
-│   ├── task_delete.go
-│   ├── task_query.go
-│   ├── task_update.go
-│   ├── task.go
-│   ├── tx.go
-│   ├── user_create.go
-│   ├── user_delete.go
-│   ├── user_query.go
-│   ├── user_update.go
-│   └── user.go
+│   └── ...
 ├── infra/
 │   ├── database/
 │   │   └── database.go
