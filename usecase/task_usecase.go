@@ -19,14 +19,26 @@ func NewTaskUseCase(taskRepository domain.TaskRepository, timeout time.Duration)
 	}
 }
 
-func (tu *taskUseCase) Create(c context.Context, task *domain.Task) (*domain.Task, error) {
+func (tu *taskUseCase) Create(c context.Context, task *domain.Task, userID *domain.ID) (*domain.Task, error) {
 	ctx, cancel := context.WithTimeout(c, tu.contextTimeout)
 	defer cancel()
-	return tu.taskRepository.Create(ctx, task)
+	task.UserID = *userID
+
+	t, err := tu.taskRepository.Create(ctx, task)
+	if err != nil {
+		return nil, domain.NewInternalServerError(err)
+	}
+
+	return t, nil
 }
 
 func (tu *taskUseCase) FetchByUserID(c context.Context, userID *domain.ID) ([]*domain.Task, error) {
 	ctx, cancel := context.WithTimeout(c, tu.contextTimeout)
 	defer cancel()
-	return tu.taskRepository.FetchByUserID(ctx, userID)
+	tasks, err := tu.taskRepository.FetchByUserID(ctx, userID)
+	if err != nil {
+		return nil, domain.NewInternalServerError(err)
+	}
+
+	return tasks, nil
 }

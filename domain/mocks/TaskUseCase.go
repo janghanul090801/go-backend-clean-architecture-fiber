@@ -16,9 +16,9 @@ type TaskUseCase struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: c, task
-func (_m *TaskUseCase) Create(c context.Context, task *domain.Task) (*domain.Task, error) {
-	ret := _m.Called(c, task)
+// Create provides a mock function with given fields: c, task, userID
+func (_m *TaskUseCase) Create(c context.Context, task *domain.Task, userID *uuid.UUID) (*domain.Task, error) {
+	ret := _m.Called(c, task, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -26,19 +26,19 @@ func (_m *TaskUseCase) Create(c context.Context, task *domain.Task) (*domain.Tas
 
 	var r0 *domain.Task
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *domain.Task) (*domain.Task, error)); ok {
-		return rf(c, task)
+	if rf, ok := ret.Get(0).(func(context.Context, *domain.Task, *uuid.UUID) (*domain.Task, error)); ok {
+		return rf(c, task, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *domain.Task) *domain.Task); ok {
-		r0 = rf(c, task)
+	if rf, ok := ret.Get(0).(func(context.Context, *domain.Task, *uuid.UUID) *domain.Task); ok {
+		r0 = rf(c, task, userID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*domain.Task)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *domain.Task) error); ok {
-		r1 = rf(c, task)
+	if rf, ok := ret.Get(1).(func(context.Context, *domain.Task, *uuid.UUID) error); ok {
+		r1 = rf(c, task, userID)
 	} else {
 		r1 = ret.Error(1)
 	}

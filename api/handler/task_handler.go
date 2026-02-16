@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gofiber/fiber/v3"
@@ -11,6 +12,7 @@ func CreateTask(service domain.TaskUseCase) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := c.RequestCtx()
 		var task domain.Task
+		var errInfo domain.Error
 
 		err := c.Bind().Body(&task)
 		if err != nil {
@@ -19,11 +21,11 @@ func CreateTask(service domain.TaskUseCase) fiber.Handler {
 
 		userID := c.Locals("id").(*domain.ID)
 
-		task.UserID = *userID
-
-		_, err = service.Create(ctx, &task)
+		_, err = service.Create(ctx, &task, userID)
 		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
+			if ok := errors.As(err, &errInfo); ok {
+				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})
+			}
 		}
 
 		return c.Status(http.StatusOK).JSON(domain.SuccessResponse{
@@ -35,11 +37,16 @@ func CreateTask(service domain.TaskUseCase) fiber.Handler {
 func FetchTask(service domain.TaskUseCase) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := c.RequestCtx()
+
+		var errInfo domain.Error
+
 		userID := c.Locals("id").(*domain.ID)
 
 		tasks, err := service.FetchByUserID(ctx, userID)
 		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(domain.ErrorResponse{Message: err.Error()})
+			if ok := errors.As(err, &errInfo); ok {
+				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})
+			}
 		}
 
 		return c.Status(http.StatusOK).JSON(tasks)
