@@ -11,8 +11,8 @@ import (
 func CreateTask(service domain.TaskUseCase) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := c.RequestCtx()
+
 		var task domain.Task
-		var errInfo domain.Error
 
 		err := c.Bind().Body(&task)
 		if err != nil {
@@ -23,7 +23,7 @@ func CreateTask(service domain.TaskUseCase) fiber.Handler {
 
 		_, err = service.Create(ctx, &task, userID)
 		if err != nil {
-			if ok := errors.As(err, &errInfo); ok {
+			if errInfo, ok := errors.AsType[domain.Error](err); ok {
 				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})
 			}
 		}
@@ -38,13 +38,11 @@ func FetchTask(service domain.TaskUseCase) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := c.RequestCtx()
 
-		var errInfo domain.Error
-
 		userID := c.Locals("id").(*domain.ID)
 
 		tasks, err := service.FetchByUserID(ctx, userID)
 		if err != nil {
-			if ok := errors.As(err, &errInfo); ok {
+			if errInfo, ok := errors.AsType[domain.Error](err); ok {
 				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})
 			}
 		}

@@ -13,7 +13,6 @@ func Login(service domain.AuthUseCase) fiber.Handler {
 		ctx := c.RequestCtx()
 
 		var request domain.LoginRequest
-		var errInfo domain.Error
 
 		err := c.Bind().Body(&request)
 		if err != nil {
@@ -22,14 +21,14 @@ func Login(service domain.AuthUseCase) fiber.Handler {
 
 		user, err := service.Login(ctx, request.Email, request.Password)
 		if err != nil {
-			if ok := errors.As(err, &errInfo); ok {
+			if errInfo, ok := errors.AsType[domain.Error](err); ok {
 				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})
 			}
 		}
 
 		accessToken, refreshToken, err := service.CreateAccessAndRefreshToken(ctx, user)
 		if err != nil {
-			if ok := errors.As(err, &errInfo); ok {
+			if errInfo, ok := errors.AsType[domain.Error](err); ok {
 				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})
 			}
 		}
@@ -48,7 +47,6 @@ func RefreshToken(service domain.AuthUseCase) fiber.Handler {
 		ctx := c.RequestCtx()
 
 		var request domain.RefreshTokenRequest
-		var errInfo domain.Error
 
 		err := c.Bind().Body(&request)
 		if err != nil {
@@ -57,14 +55,14 @@ func RefreshToken(service domain.AuthUseCase) fiber.Handler {
 
 		user, err := service.ExtractUserFromRefreshToken(ctx, request.RefreshToken)
 		if err != nil {
-			if ok := errors.As(err, &errInfo); ok {
+			if errInfo, ok := errors.AsType[domain.Error](err); ok {
 				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})
 			}
 		}
 
 		accessToken, refreshToken, err := service.CreateAccessAndRefreshToken(ctx, user)
 		if err != nil {
-			if ok := errors.As(err, &errInfo); ok {
+			if errInfo, ok := errors.AsType[domain.Error](err); ok {
 				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})
 			}
 		}
@@ -81,8 +79,8 @@ func RefreshToken(service domain.AuthUseCase) fiber.Handler {
 func Signup(service domain.AuthUseCase) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		ctx := c.RequestCtx()
+
 		var request domain.SignupRequest
-		var errInfo domain.Error
 
 		err := c.Bind().Body(&request)
 		if err != nil {
@@ -91,14 +89,14 @@ func Signup(service domain.AuthUseCase) fiber.Handler {
 
 		user, err := service.Register(ctx, request.Name, request.Email, request.Password)
 		if err != nil {
-			if ok := errors.As(err, &errInfo); ok {
+			if errInfo, ok := errors.AsType[domain.Error](err); ok {
 				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})
 			}
 		}
 
 		accessToken, refreshToken, err := service.CreateAccessAndRefreshToken(ctx, user)
 		if err != nil {
-			if ok := errors.As(err, &errInfo); ok {
+			if errInfo, ok := errors.AsType[domain.Error](err); ok {
 				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})
 			}
 		}

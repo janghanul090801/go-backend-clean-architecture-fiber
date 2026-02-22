@@ -42,7 +42,7 @@ func CreateRefreshToken(user *domain.User, secret string, expiry int) (refreshTo
 }
 
 func IsAuthorized(requestToken string, secret string) (bool, error) {
-	_, err := jwt.Parse(requestToken, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.Parse(requestToken, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -56,7 +56,7 @@ func IsAuthorized(requestToken string, secret string) (bool, error) {
 
 // ExtractIDFromToken refreshToken 에서 id 추출
 func ExtractIDFromToken(requestToken string, secret string) (*domain.ID, error) {
-	token, err := jwt.Parse(requestToken, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(requestToken, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
