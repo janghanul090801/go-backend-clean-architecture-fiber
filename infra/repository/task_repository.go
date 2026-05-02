@@ -37,8 +37,8 @@ func (r *taskRepository) Create(c context.Context, task *domain.Task) (*domain.T
 	}, nil
 }
 
-func (r *taskRepository) FetchByUserID(c context.Context, userID *domain.ID) ([]*domain.Task, error) {
-	t, err := r.client.Task.
+func (r *taskRepository) FetchByUserID(c context.Context, userID *domain.ID, offset, limit int) ([]*domain.Task, int, error) {
+	query := r.client.Task.
 		Query().
 		Where(
 			task.HasOwnerWith(
@@ -46,17 +46,25 @@ func (r *taskRepository) FetchByUserID(c context.Context, userID *domain.ID) ([]
 					*userID,
 				),
 			),
-		).
+		)
+
+	total, err := query.Count(c)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	t, err := query.
 		WithOwner().
+		Limit(limit).
+		Offset(offset).
 		Order(
 			ent.Desc(
 				task.FieldCreatedAt,
 			),
 		).
 		All(c)
-
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	tasks := make([]*domain.Task, len(t))
@@ -64,5 +72,5 @@ func (r *taskRepository) FetchByUserID(c context.Context, userID *domain.ID) ([]
 		tasks[i] = toDomainTask(te)
 	}
 
-	return tasks, err
+	return tasks, total, err
 }

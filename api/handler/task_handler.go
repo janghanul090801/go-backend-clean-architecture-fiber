@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/paginate"
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/domain"
 )
 
@@ -40,7 +41,12 @@ func FetchTask(service domain.TaskUseCase) fiber.Handler {
 
 		userID := c.Locals("id").(*domain.ID)
 
-		tasks, err := service.FetchByUserID(ctx, userID)
+		pageInfo, ok := paginate.FromContext(c)
+		if !ok {
+			return c.Status(http.StatusBadRequest).JSON(domain.ErrorResponse{Message: "Pagination failed"})
+		}
+
+		tasks, err := service.FetchByUserID(ctx, userID, pageInfo.Start(), pageInfo.Limit)
 		if err != nil {
 			if errInfo, ok := errors.AsType[domain.Error](err); ok {
 				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})

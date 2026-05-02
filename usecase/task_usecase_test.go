@@ -29,25 +29,36 @@ func TestFetchByUserID(t *testing.T) {
 		mockListTask := make([]*domain.Task, 0)
 		mockListTask = append(mockListTask, &mockTask)
 
-		mockTaskRepository.On("FetchByUserID", mock.Anything, &userID).Return(mockListTask, nil).Once()
+		limit := 10
+		offset := 0
+
+		mockPaginatedResult := &domain.PaginatedResult[*domain.Task]{
+			Items:  mockListTask,
+			Total:  1,
+			Limit:  limit,
+			Offset: offset,
+		}
+
+		mockTaskRepository.On("FetchByUserID", mock.Anything, &userID, offset, limit).Return(mockListTask, 1, nil).Once()
 
 		u := usecase.NewTaskUseCase(mockTaskRepository, time.Second*2)
 
-		list, err := u.FetchByUserID(context.Background(), &userID)
+		result, err := u.FetchByUserID(context.Background(), &userID, 0, 10)
 
 		assert.NoError(t, err)
-		assert.NotNil(t, list)
-		assert.Len(t, list, len(mockListTask))
+		assert.NotNil(t, result)
+		assert.Len(t, result.Items, len(mockListTask))
+		assert.Equal(t, result, mockPaginatedResult)
 
 		mockTaskRepository.AssertExpectations(t)
 	})
 
 	t.Run("error", func(t *testing.T) {
-		mockTaskRepository.On("FetchByUserID", mock.Anything, &userID).Return(nil, errors.New("unexpected")).Once()
+		mockTaskRepository.On("FetchByUserID", mock.Anything, &userID, 0, 10).Return(nil, 0, errors.New("unexpected")).Once()
 
 		u := usecase.NewTaskUseCase(mockTaskRepository, time.Second*2)
 
-		list, err := u.FetchByUserID(context.Background(), &userID)
+		list, err := u.FetchByUserID(context.Background(), &userID, 0, 10)
 
 		assert.Error(t, err)
 		assert.Nil(t, list)

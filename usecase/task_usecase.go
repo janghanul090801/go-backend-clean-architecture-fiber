@@ -32,13 +32,18 @@ func (tu *taskUseCase) Create(c context.Context, task *domain.Task, userID *doma
 	return t, nil
 }
 
-func (tu *taskUseCase) FetchByUserID(c context.Context, userID *domain.ID) ([]*domain.Task, error) {
+func (tu *taskUseCase) FetchByUserID(c context.Context, userID *domain.ID, offset, limit int) (*domain.PaginatedResult[*domain.Task], error) {
 	ctx, cancel := context.WithTimeout(c, tu.contextTimeout)
 	defer cancel()
-	tasks, err := tu.taskRepository.FetchByUserID(ctx, userID)
+	tasks, total, err := tu.taskRepository.FetchByUserID(ctx, userID, offset, limit)
 	if err != nil {
 		return nil, domain.NewInternalServerError(err)
 	}
 
-	return tasks, nil
+	return &domain.PaginatedResult[*domain.Task]{
+		Items:  tasks,
+		Total:  total,
+		Limit:  limit,
+		Offset: offset,
+	}, nil
 }

@@ -1,5 +1,6 @@
 # Go Backend Clean Architecture
 
+> PR 은 언제나 환영합니다
 
 ## Framework / Library
 - **Fiber**
@@ -66,7 +67,9 @@ make test
 │   ├── auth.go
 │   ├── domain.go
 │   ├── error_response.go
+│   ├── error.go
 │   ├── jwt_custom.go
+│   ├── pagination.go
 │   ├── profile.go
 │   ├── success_response.go
 │   ├── task.go
@@ -75,7 +78,7 @@ make test
 │   ├── schema/
 │   │   ├── task.go
 │   │   └── user.go
-│   └── ...
+│   └── ... (generated files)
 ├── infra/
 │   ├── database/
 │   │   └── database.go
@@ -189,21 +192,32 @@ make test
   - request
 
   ```
-  curl --location --request GET 'http://localhost:8080/api/task/protected' \
+  curl --location --request GET 'http://localhost:8080/api/task/protected?page=1&limit=10' \
   --header 'Authorization: Bearer access_token'
   ```
 
   - response
 
   ```json
-  [
-    {
-      "title": "Test Task"
-    },
-    {
-      "title": "Test Another Task"
-    }
-  ]
+  {
+    "items": [
+      {
+       "id": "626afac0-5e0d-493a-a97b-1827b485f521",
+        "title": "Test Task",
+        "user_id": "b10e63ff-6ab2-4714-8f90-c33a99e7b476",
+        "created_at": "2026-02-11T16:36:01.839759Z"
+      },
+      {
+        "id": "f46834d6-649c-4a28-b779-bcd74aad0a06",
+        "title": "Test Task",
+        "user_id": "b10e63ff-6ab2-4714-8f90-c33a99e7b476",
+        "created_at": "2026-02-11T16:34:46.026427Z"
+      }
+    ],
+    "total": 2,
+    "limit": 5,
+    "offset": 0
+  }
   ```
 
 - refresh token

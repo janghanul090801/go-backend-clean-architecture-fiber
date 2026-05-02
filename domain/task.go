@@ -14,10 +14,10 @@ type Task struct {
 
 type TaskRepository interface {
 	Create(c context.Context, task *Task) (*Task, error)
-	FetchByUserID(c context.Context, userID *ID) ([]*Task, error)
+	FetchByUserID(c context.Context, userID *ID, offset, limit int) ([]*Task, int, error)
 }
 
 type TaskUseCase interface {
 	Create(c context.Context, task *Task, userID *ID) (*Task, error)
-	FetchByUserID(c context.Context, userID *ID) ([]*Task, error)
+	FetchByUserID(c context.Context, userID *ID, offset, limit int) (*PaginatedResult[*Task], error)
 }
