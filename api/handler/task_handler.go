@@ -46,7 +46,7 @@ func FetchTask(service domain.TaskUseCase) fiber.Handler {
 			return c.Status(http.StatusBadRequest).JSON(domain.ErrorResponse{Message: "Pagination failed"})
 		}
 
-		tasks, err := service.FetchByUserID(ctx, userID, pageInfo.Start(), pageInfo.Limit)
+		tasks, err := service.ListByUserID(ctx, userID, pageInfo.Start(), pageInfo.Limit)
 		if err != nil {
 			if errInfo, ok := errors.AsType[domain.Error](err); ok {
 				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})

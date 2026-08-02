@@ -17,7 +17,7 @@ type TaskRepository struct {
 }
 
 // Create provides a mock function with given fields: c, task
-func (_m *TaskRepository) Create(c context.Context, task *domain.Task) (*domain.Task, error) {
+func (_m *TaskRepository) Save(c context.Context, task *domain.Task) (*domain.Task, error) {
 	ret := _m.Called(c, task)
 
 	if len(ret) == 0 {
@@ -47,7 +47,7 @@ func (_m *TaskRepository) Create(c context.Context, task *domain.Task) (*domain.
 }
 
 // FetchByUserID provides a mock function with given fields: c, userID, offset, limit
-func (_m *TaskRepository) FetchByUserID(c context.Context, userID *uuid.UUID, offset int, limit int) ([]*domain.Task, int, error) {
+func (_m *TaskRepository) FindAllByUserID(c context.Context, userID *uuid.UUID, offset int, limit int) ([]*domain.Task, int, error) {
 	ret := _m.Called(c, userID, offset, limit)
 
 	if len(ret) == 0 {

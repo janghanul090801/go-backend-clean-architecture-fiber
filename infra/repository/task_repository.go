@@ -19,7 +19,7 @@ func NewTaskRepository(client *ent.Client) domain.TaskRepository {
 	}
 }
 
-func (r *taskRepository) Create(c context.Context, task *domain.Task) (*domain.Task, error) {
+func (r *taskRepository) Save(c context.Context, task *domain.Task) (*domain.Task, error) {
 
 	t, err := r.client.Task.Create().
 		SetTitle(task.Title).
@@ -37,7 +37,7 @@ func (r *taskRepository) Create(c context.Context, task *domain.Task) (*domain.T
 	}, nil
 }
 
-func (r *taskRepository) FetchByUserID(c context.Context, userID *domain.ID, offset, limit int) ([]*domain.Task, int, error) {
+func (r *taskRepository) FindAllByUserID(c context.Context, userID *domain.ID, offset, limit int) ([]*domain.Task, int, error) {
 	query := r.client.Task.
 		Query().
 		Where(

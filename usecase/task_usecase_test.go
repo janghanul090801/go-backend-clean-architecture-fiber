@@ -43,7 +43,7 @@ func TestFetchByUserID(t *testing.T) {
 
 		u := usecase.NewTaskUseCase(mockTaskRepository, time.Second*2)
 
-		result, err := u.FetchByUserID(context.Background(), &userID, 0, 10)
+		result, err := u.ListByUserID(context.Background(), &userID, 0, 10)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, result)
@@ -58,7 +58,7 @@ func TestFetchByUserID(t *testing.T) {
 
 		u := usecase.NewTaskUseCase(mockTaskRepository, time.Second*2)
 
-		list, err := u.FetchByUserID(context.Background(), &userID, 0, 10)
+		list, err := u.ListByUserID(context.Background(), &userID, 0, 10)
 
 		assert.Error(t, err)
 		assert.Nil(t, list)
