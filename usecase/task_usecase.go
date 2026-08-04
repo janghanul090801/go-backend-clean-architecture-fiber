@@ -24,7 +24,7 @@ func (tu *taskUseCase) Create(c context.Context, task *domain.Task, userID *doma
 	defer cancel()
 	task.UserID = *userID
 
-	t, err := tu.taskRepository.Save(ctx, task)
+	t, err := tu.taskRepository.Create(ctx, task)
 	if err != nil {
 		return nil, domain.NewInternalServerError(err)
 	}

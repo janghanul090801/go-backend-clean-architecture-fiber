@@ -13,7 +13,7 @@ type Task struct {
 }
 
 type TaskRepository interface {
-	Save(c context.Context, task *Task) (*Task, error)
+	Create(c context.Context, task *Task) (*Task, error)
 	FindAllByUserID(c context.Context, userID *ID, offset, limit int) ([]*Task, int, error)
 }
 

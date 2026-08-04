@@ -46,12 +46,12 @@ func (_m *TaskUseCase) Create(c context.Context, task *domain.Task, userID *uuid
 	return r0, r1
 }
 
-// FetchByUserID provides a mock function with given fields: c, userID, offset, limit
+// ListByUserID provides a mock function with given fields: c, userID, offset, limit
 func (_m *TaskUseCase) ListByUserID(c context.Context, userID *uuid.UUID, offset int, limit int) (*domain.PaginatedResult[*domain.Task], error) {
 	ret := _m.Called(c, userID, offset, limit)
 
 	if len(ret) == 0 {
-		panic("no return value specified for FetchByUserID")
+		panic("no return value specified for ListByUserID")
 	}
 
 	var r0 *domain.PaginatedResult[*domain.Task]

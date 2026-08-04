@@ -18,7 +18,7 @@ func NewUserRepository(client *ent.Client) domain.UserRepository {
 	}
 }
 
-func (r *userRepository) Save(c context.Context, user *domain.User) (*domain.User, error) {
+func (r *userRepository) Create(c context.Context, user *domain.User) (*domain.User, error) {
 	u, err := r.client.User.Create().
 		SetName(user.Name).
 		SetEmail(user.Email).

@@ -14,7 +14,7 @@ type User struct {
 }
 
 type UserRepository interface {
-	Save(c context.Context, user *User) (*User, error)
+	Create(c context.Context, user *User) (*User, error)
 	FindAll(c context.Context) ([]*User, error)
 	FindByEmail(c context.Context, email string) (*User, error)
 	FindByID(c context.Context, id *ID) (*User, error)

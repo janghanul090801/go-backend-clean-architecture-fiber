@@ -19,7 +19,7 @@ func NewTaskRepository(client *ent.Client) domain.TaskRepository {
 	}
 }
 
-func (r *taskRepository) Save(c context.Context, task *domain.Task) (*domain.Task, error) {
+func (r *taskRepository) Create(c context.Context, task *domain.Task) (*domain.Task, error) {
 
 	t, err := r.client.Task.Create().
 		SetTitle(task.Title).
