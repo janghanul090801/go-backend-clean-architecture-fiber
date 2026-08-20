@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gofiber/contrib/v3/swaggo"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/compress"
 	"github.com/gofiber/fiber/v3/middleware/cors"
@@ -23,6 +24,15 @@ import (
 	"github.com/janghanul090801/go-backend-clean-architecture-fiber/usecase"
 )
 
+// @title          Fiber Backend API
+// @version        1.0
+// @description    Fiber Backend API
+// @host			localhost:8080
+// @BasePath		/api
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Enter your JWT token with the `Bearer ` prefix.
 func main() {
 	config.NewEnv()
 
@@ -46,10 +56,15 @@ func main() {
 		},
 	}))
 	app.Use(logger.New())
-	app.Use(recover.New())
 	app.Use(requestid.New())
+	app.Use(recover.New(recover.Config{
+		EnableStackTrace: true,
+	}))
 
 	api := app.Group("/api")
+
+	app.Get("/swagger/*", swaggo.HandlerDefault)
+	app.Get("/docs/*", swaggo.HandlerDefault)
 
 	client, err := database.NewClient()
 	if err != nil {

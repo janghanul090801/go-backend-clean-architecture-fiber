@@ -48,9 +48,7 @@ func FetchTask(service domain.TaskUseCase) fiber.Handler {
 
 		tasks, err := service.ListByUserID(ctx, userID, pageInfo.Start(), pageInfo.Limit)
 		if err != nil {
-			if errInfo, ok := errors.AsType[domain.Error](err); ok {
-				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})
-			}
+			return RespondError(c, err)
 		}
 
 		return c.Status(http.StatusOK).JSON(tasks)

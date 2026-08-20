@@ -89,16 +89,12 @@ func Signup(service domain.AuthUseCase) fiber.Handler {
 
 		user, err := service.Register(ctx, request.Name, request.Email, request.Password)
 		if err != nil {
-			if errInfo, ok := errors.AsType[domain.Error](err); ok {
-				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})
-			}
+			return RespondError(c, err)
 		}
 
 		accessToken, refreshToken, err := service.CreateAccessAndRefreshToken(ctx, user)
 		if err != nil {
-			if errInfo, ok := errors.AsType[domain.Error](err); ok {
-				return c.Status(errInfo.StatusCode).JSON(domain.ErrorResponse{Message: err.Error()})
-			}
+			return RespondError(c, err)
 		}
 
 		response := domain.AuthResponse{
